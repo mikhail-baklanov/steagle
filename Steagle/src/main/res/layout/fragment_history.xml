@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/fragment_title_and_operation"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="50px"
+        android:background="@color/historySwitchSelectedColor"
+        android:layout_marginLeft="60dp"
+        android:layout_marginRight="60dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp">
+
+        <LinearLayout
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/tvImportant"
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:text="@string/important_events"
+                android:layout_weight="1"
+                android:background="@color/historySwitchSelectedColor"
+                android:textColor="@color/historySwitchSelectedTextColor"
+                android:layout_margin="1px"
+                android:gravity="center" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/tvAll"
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:text="@string/all_events"
+                android:layout_weight="1"
+                android:background="@color/historySwitchUnselectedColor"
+                android:textColor="@color/historySwitchUnselectedTextColor"
+                android:layout_margin="1px"
+                android:gravity="center" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <!-- разделитель -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="1px"
+        android:background="#888888" />
+
+    <!-- список разделов -->
+    <ScrollView
+        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/container"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </ScrollView>
+
+<!--
+    <RelativeLayout
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btnEdit"
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:text="@string/action_filter"
+            android:gravity="right|center"
+            android:paddingRight="30dp"
+            android:paddingLeft="20dp" />
+
+        <ImageView
+            android:layout_height="60dp"
+            android:layout_width="60dp"
+            android:padding="12dp"
+            android:layout_marginLeft="20dp"
+            android:src="@drawable/login_button" />
+    </RelativeLayout>
+-->
+</LinearLayout>

@@ -1,0 +1,18 @@
+<resources>
+
+    <string name="title_activity_login">Steagle</string>
+
+    <string name="prompt_email">Логин</string>
+    <string name="prompt_password">Пароль</string>
+    <string name="auto_login">автоматический вход</string>
+    <string name="save_password">сохранить пароль</string>
+    <string name="dont_save_password">не сохранять пароль</string>
+    <string name="action_login">Войти</string>
+
+    <string name="error_incorrect_password">Неверный пароль или отсутствует подключение к сети</string>
+    <string name="error_field_required">Введите значение</string>
+
+    <string name="login_progress_signing_in">Авторизация&#8230;</string>
+    <string name="password_ime_action">Войти</string>
+
+</resources>

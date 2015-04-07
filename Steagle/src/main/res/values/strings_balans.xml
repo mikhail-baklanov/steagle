@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_period">За период</string>
+    <string name="balans">Баланс</string>
+    <string name="enter_report_period">Введите период отчета</string>
+    <string name="btnCreateReport">Построить</string>
+</resources>

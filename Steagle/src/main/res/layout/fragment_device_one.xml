@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/deviceName"
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:text="@string/foo"
+            android:paddingLeft="10dp"
+            android:paddingTop="5dp"
+            android:gravity="center_vertical"
+            android:paddingBottom="5dp" />
+
+        <ImageView
+            android:id="@+id/deviceLock"
+            android:layout_height="wrap_content"
+            android:layout_width="50dp"
+            android:padding="5dp"
+            android:src="@drawable/lock_green" />
+
+        <LinearLayout
+            android:id="@+id/sensorsInfo"
+            android:orientation="horizontal"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:background="@color/listHeaderBackground">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/sensorsStatus"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_width="match_parent"
+                    android:padding="2dp"
+                    android:layout_gravity="center_horizontal"
+                    android:src="@drawable/eye_gray" />
+
+                <RelativeLayout
+                    android:layout_height="0dp"
+                    android:layout_width="match_parent"
+                    android:layout_weight="1">
+                    <TextView
+                        android:id="@+id/counter"
+                        android:layout_height="match_parent"
+                        android:layout_width="match_parent"
+                        android:gravity="center"
+                        android:text="@string/foo" />
+                </RelativeLayout>
+            </LinearLayout>
+
+            <ImageView
+                android:layout_height="match_parent"
+                android:layout_width="20dp"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:src="@drawable/corner_gray_small" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- разделитель -->
+    <LinearLayout
+        android:id="@+id/delimiter"
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="1px"
+        android:background="#888888" />
+
+</LinearLayout>

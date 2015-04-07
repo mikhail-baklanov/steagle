@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="40dp">
+
+    <TextView
+        android:id="@+id/sensorName"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/foo"
+        android:layout_centerVertical="true"
+        />
+
+    <ImageView
+        android:id="@+id/sensorSwitch"
+        android:layout_height="wrap_content"
+        android:layout_width="60dp"
+        android:src="@drawable/switcher_off"
+        android:layout_alignParentRight="true"
+        android:padding="2dp"
+        android:layout_centerVertical="true"
+
+        />
+    <!-- разделитель -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="1px"
+        android:background="#888888"
+        android:layout_alignParentBottom="true"/>
+</RelativeLayout>

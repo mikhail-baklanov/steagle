@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Steagle/Steagle.iml" filepath="$PROJECT_DIR$/Steagle/Steagle.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SteagleProject.iml" filepath="$PROJECT_DIR$/SteagleProject.iml" />
+    </modules>
+  </component>
+</project>
+

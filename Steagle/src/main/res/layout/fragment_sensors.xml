@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/fragment_title_and_operation" />
+
+    <TextView
+        android:id="@+id/freeText"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="@string/foo"
+        android:paddingLeft="10dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp" />
+
+    <!-- список разделов -->
+    <ScrollView
+        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp">
+
+            <!-- Активные датчики -->
+            <LinearLayout
+                android:id="@+id/turnOnSensorsPart"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content">
+
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="@string/turnOnSensorsHeader"
+                        android:paddingLeft="10dp"
+                        android:paddingTop="5dp"
+                        android:paddingBottom="5dp" />
+
+                    <ImageView
+                        android:layout_height="30dp"
+                        android:layout_width="wrap_content"
+                        android:src="@drawable/eye_green" />
+
+                </LinearLayout>
+                <!-- разделитель -->
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1px"
+                    android:background="#888888" />
+
+                <LinearLayout
+                    android:id="@+id/turnOnSensorsContainer"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingRight="10dp"
+                    android:paddingLeft="10dp">
+
+                </LinearLayout>
+            </LinearLayout>
+
+
+            <!-- Отключенные датчики -->
+            <LinearLayout
+                android:id="@+id/turnOffSensorsPart"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp">
+
+                <LinearLayout
+                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content">
+
+                    <TextView
+                        android:layout_height="match_parent"
+                        android:layout_width="wrap_content"
+                        android:text="@string/turnOffSensorsHeader"
+                        android:paddingLeft="10dp"
+                        android:paddingTop="5dp"
+                        android:paddingBottom="5dp" />
+
+                    <ImageView
+                        android:layout_height="30dp"
+                        android:layout_width="wrap_content"
+                        android:src="@drawable/eye_gray" />
+                </LinearLayout>
+                <!-- разделитель -->
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1px"
+                    android:background="#888888" />
+
+                <LinearLayout
+                    android:id="@+id/turnOffSensorsContainer"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingRight="10dp"
+                    android:paddingLeft="10dp">
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Датчики неизвестного статуса -->
+            <LinearLayout
+                android:id="@+id/unstableSensorsPart"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp">
+
+                <TextView
+                    android:id="@+id/unstableSensorsHeader"
+                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:text="@string/unstable_sensor_list"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp" />
+                <!-- разделитель -->
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1px"
+                    android:background="#888888" />
+
+                <LinearLayout
+                    android:id="@+id/unstableSensorsContainer"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingRight="10dp"
+                    android:paddingLeft="10dp">
+
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

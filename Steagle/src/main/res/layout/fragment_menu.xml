@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="90dp"
+    android:background="#FFFFFF">
+
+    <!-- разделитель -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="1px"
+        android:background="#888888" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageButton
+                android:id="@+id/btnAccount"
+                android:layout_width="fill_parent"
+                android:layout_height="60dp"
+                android:layout_gravity="center"
+                android:adjustViewBounds="true"
+                android:antialias="true"
+                android:background="#00000000"
+                android:cropToPadding="false"
+                android:scaleType="fitCenter"
+                android:src="@drawable/account" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="@dimen/menu_text_size"
+                android:text="@string/menu_account" />
+        </LinearLayout>
+        <!-- разделитель -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="1px"
+            android:layout_height="match_parent"
+            android:background="#888888" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageButton
+                android:id="@+id/btnDevices"
+                android:layout_width="fill_parent"
+                android:layout_height="60dp"
+                android:layout_gravity="center"
+                android:adjustViewBounds="true"
+                android:antialias="true"
+                android:background="#00000000"
+                android:cropToPadding="false"
+                android:scaleType="fitCenter"
+                android:src="@drawable/devices" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="@dimen/menu_text_size"
+                android:text="@string/menu_devices" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="1px"
+            android:layout_height="match_parent"
+            android:background="#888888" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageButton
+                android:id="@+id/btnHistory"
+                android:layout_width="fill_parent"
+                android:layout_height="60dp"
+                android:layout_gravity="center"
+                android:adjustViewBounds="true"
+                android:antialias="true"
+                android:background="#00000000"
+                android:cropToPadding="false"
+                android:scaleType="fitCenter"
+                android:src="@drawable/journal" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="@dimen/menu_text_size"
+                android:text="@string/menu_history" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="1px"
+            android:layout_height="match_parent"
+            android:background="#888888" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageButton
+                android:id="@+id/btnSettings"
+                android:layout_width="fill_parent"
+                android:layout_height="60dp"
+                android:layout_gravity="center"
+                android:adjustViewBounds="true"
+                android:antialias="true"
+                android:background="#00000000"
+                android:cropToPadding="false"
+                android:scaleType="fitCenter"
+                android:src="@drawable/settings" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="@dimen/menu_text_size"
+                android:text="@string/menu_settings" />
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>

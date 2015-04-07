@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="labelOwner">Владелец</string>
+    <string name="labelAccount">Счет №</string>
+    <string name="labelNotifications">Личные данные для оповещений</string>
+    <string name="labelBalans">Баланс</string>
+    <string name="labelTimeZone">Временная зона</string>
+    <string name="labelPersonalInfo">Персональная информация</string>
+    <string name="labelTarif">Тарифный план</string>
+    <string name="unknown_balance"><![CDATA[zzZ]]></string>
+    <string name="unknown_user_status"><![CDATA[...]]></string>
+    <string name="unknown_user_name"><![CDATA[<неизвестно>]]></string>
+    <string name="unknown_account"><![CDATA[<неизвестен>]]></string>
+    <string name="unknown_currency"><![CDATA[...]]></string>
+    <string name="unknown_time_zone"><![CDATA[...]]></string>
+    <string name="unknown_tarif"><![CDATA[...]]></string>
+    <string name="timeZones">Временная зона</string>
+</resources>

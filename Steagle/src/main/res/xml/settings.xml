@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <CheckBoxPreference
+        android:key="useMobileInet"
+        android:summary="@string/use_mobile_inet_summary"
+        android:title="@string/use_mobile_inet"/>
+    <ListPreference
+        android:entries="@array/auto_load_entries"
+        android:entryValues="@array/auto_load_values"
+        android:key="autoLogin"
+        android:summary="@string/auto_load_summary"
+        android:title="@string/auto_load"/>
+    <ListPreference
+        android:entries="@array/history_limit_entries"
+        android:entryValues="@array/history_limit_values"
+        android:key="historyLimit"
+        android:summary="@string/history_limit_summary"
+        android:title="@string/history_limit"/>
+    <PreferenceCategory android:title="@string/background_mode">
+        <CheckBoxPreference
+            android:key="autoLoad"
+            android:summary="@string/background_mode_summary"
+            android:title="@string/background_mode"/>
+        <CheckBoxPreference
+            android:key="soundNotify"
+            android:summary="@string/sound_notify_summary"
+            android:title="@string/sound_notify"/>
+        <CheckBoxPreference
+            android:key="vibroNotify"
+            android:summary="@string/vibro_notify_summary"
+            android:title="@string/vibro_notify"/>
+    </PreferenceCategory>
+</PreferenceScreen>

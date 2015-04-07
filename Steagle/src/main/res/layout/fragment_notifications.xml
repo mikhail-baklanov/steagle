@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/fragment_title_and_operation"/>
+
+    <!-- список разделов -->
+    <ScrollView
+        android:layout_height="0dp"
+        android:layout_width="match_parent"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- номера для звонков -->
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <RelativeLayout
+                    android:orientation="horizontal"
+                    android:background="@color/notificationsHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp">
+
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="@string/labelPhoneNotifications"
+                        android:textColor="@color/labelColor"
+                        android:layout_centerVertical="true"
+                        android:paddingLeft="10dp" />
+
+                    <ImageView
+                        android:id="@+id/phoneSwitch"
+                        android:layout_height="30dp"
+                        android:layout_width="60dp"
+                        android:src="@drawable/switcher_off"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+
+                         />
+                </RelativeLayout>
+
+
+                <!-- контейнер для телефонов -->
+                <LinearLayout
+                    android:id="@+id/phoneNotificationsContainer"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/white"
+                    android:layout_weight="3">
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- разделитель -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="1px"
+                android:background="#888888" />
+
+            <!-- номера для смс -->
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <RelativeLayout
+                    android:orientation="horizontal"
+                    android:background="@color/notificationsHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp">
+
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="@string/labelSmsNotifications"
+                        android:textColor="@color/labelColor"
+                        android:layout_centerVertical="true"
+                        android:paddingLeft="10dp" />
+
+                    <ImageView
+                        android:id="@+id/smsSwitch"
+                        android:layout_height="30dp"
+                        android:layout_width="60dp"
+                        android:src="@drawable/switcher_off"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+
+                         />
+                </RelativeLayout>
+
+                <!-- контейнер для телефонов -->
+                <LinearLayout
+                    android:id="@+id/smsNotificationsContainer"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/white"
+                    android:layout_weight="3">
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- разделитель -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="1px"
+                android:background="#888888" />
+
+            <!-- email's -->
+            <LinearLayout
+                android:orientation="vertical"
+                android:background="@color/notificationsHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <RelativeLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp">
+
+                    <TextView
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"
+                        android:text="@string/labelEmailNotifications"
+                        android:textColor="@color/labelColor"
+                        android:layout_centerVertical="true"
+                        android:paddingLeft="10dp" />
+
+                    <ImageView
+                        android:id="@+id/emailSwitch"
+                        android:layout_height="30dp"
+                        android:layout_width="60dp"
+                        android:src="@drawable/switcher_off"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+
+                         />
+                </RelativeLayout>
+
+
+                <!-- контейнер для телефонов -->
+                <LinearLayout
+                    android:id="@+id/emailNotificationsContainer"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/white"
+                    android:layout_weight="3">
+
+                </LinearLayout>
+            </LinearLayout>
+            <!-- разделитель -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="1px"
+                android:background="#888888" />
+        </LinearLayout>
+
+    </ScrollView>
+<!--
+    <RelativeLayout
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btnEdit"
+            android:layout_width="250dp"
+            android:layout_height="50dp"
+            android:text="@string/action_edit"
+            android:gravity="right|center"
+            android:paddingRight="50dp"
+            android:paddingLeft="20dp" />
+        <ImageView
+            android:layout_height="50dp"
+            android:layout_width="50dp"
+            android:padding="12dp"
+            android:layout_marginLeft="7dp"
+            android:src="@drawable/edit_button"/>
+    </RelativeLayout>
+-->
+</LinearLayout>

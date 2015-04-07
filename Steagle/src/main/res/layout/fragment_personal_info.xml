@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_margin="10dp">
+
+    <include layout="@layout/fragment_title"/>
+	
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_margin="10dp"
+        android:text="@string/personal_phone" />
+
+    <EditText
+        android:id="@+id/personal_phone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:background="#EEE"
+        android:layout_margin="10dp"
+        android:padding="3dp"
+        android:text="@string/foo" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_margin="10dp"
+        android:text="@string/personal_email" />
+
+    <EditText
+        android:id="@+id/personal_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:padding="3dp"
+        android:background="#EEE"
+        android:layout_margin="10dp"
+        android:text="@string/foo" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:id="@+id/layoutView"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/btnEdit"
+                android:layout_width="250dp"
+                android:layout_height="50dp"
+                android:text="@string/action_edit"
+                android:gravity="right|center"
+                android:paddingRight="50dp"
+                android:paddingLeft="20dp" />
+
+            <ImageView
+                android:layout_height="50dp"
+                android:layout_width="50dp"
+                android:padding="12dp"
+                android:layout_marginLeft="7dp"
+                android:src="@drawable/edit_button" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutEdit"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/btnSave"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:text="@string/btnSave" />
+
+            <Button
+                android:id="@+id/btnCancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:text="@string/btnCancel" />
+        </LinearLayout>
+    </LinearLayout>
+
+
+</LinearLayout>

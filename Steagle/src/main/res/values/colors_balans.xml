@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="balansTime">#BBB</color>
+    <color name="balansMessage">#000</color>
+    <color name="balansSumP">#8AB800</color>
+    <color name="balansSumN">#F00</color>
+</resources>

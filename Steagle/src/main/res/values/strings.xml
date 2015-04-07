@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Steagle</string>
+    <string name="foo">Foo</string>
+    <string name="service_connection_error">Ошибка доступа к сервису</string>
+    <string name="network_error">Сеть недоступна. Проверьте настройки сети.</string>
+    <string name="btnYes">Да</string>
+    <string name="period_start">Начальная дата:</string>
+    <string name="period_end">Конечная дата:</string>
+    <string name="empty_date">--.--.----</string>
+    <string name="menu_history">Журнал</string>
+    <string name="btnSave">Сохранить</string>
+    <string name="btnCancel">Отмена</string>
+    <string name="btnEdit">Редактировать</string>
+    <string name="settings">Настройки</string>
+    <string name="use_mobile_inet">Мобильная передача данных</string>
+    <string name="use_mobile_inet_summary">Использовать мобильную передачу данных, если доступна</string>
+    <string name="background_mode">Фоновый режим</string>
+    <string name="background_mode_summary">Включить фоновый режим получения событий</string>
+    <string name="sound_notify">Звуковое оповещение</string>
+    <string name="sound_notify_summary">Звуковое оповещение о пришедшем событии</string>
+    <string name="vibro_notify">Вибрация</string>
+    <string name="vibro_notify_summary">Оповещение вибрацией о пришедшем событии</string>
+    <string name="auto_load">Сохранение пароля и вход</string>
+    <string name="auto_load_summary">Параметры сохранение пароля и автоматического входа</string>
+    <string name="history_limit">Лимит журнала событий</string>
+    <string name="history_limit_summary">Максимальное число записей журнала, получаемых от сервера</string>
+    <string name="select_time_zone">Выберите временную зону:</string>
+    <string name="empty">Список пуст</string>
+    <string name="action_filter">Фильтр</string>
+    <string name="btnFilter">Старт</string>
+    <string name="all_events">Все</string>
+    <string name="important_events">Важные</string>
+    <string name="enter_filter">Введите фильтр</string>
+    <string name="chooseDevice">Выберите устройство</string>
+    <string name="timeZoneSuccessUpdate">Временная зона успешно обновлена</string>
+    <string name="new_notifications">Уведомления от устройств</string>
+    <string name="sensors">Датчики</string>
+
+    <string-array name="auto_load_values">
+        <item>yes</item>
+        <item>never</item>
+        <item>ask</item>
+    </string-array>
+    <string-array name="auto_load_entries">
+        <item>автоматический вход</item>
+        <item>не сохранять пароль</item>
+        <item>сохранить пароль</item>
+    </string-array>
+    <string-array name="history_limit_values">
+        <item>10</item>
+        <item>50</item>
+        <item>100</item>
+        <item>1000</item>
+    </string-array>
+    <string-array name="history_limit_entries">
+        <item>10</item>
+        <item>50</item>
+        <item>100</item>
+        <item>1000</item>
+    </string-array>
+
+    <string name="title_activity_notifications_view">Уведомления</string>
+    <string name="notificationsList">Поступили новые уведомления:</string>
+    <string name="devices">Устройства</string>
+    <string name="change_master_password">Изменить мастер пароль устройства</string>
+    <string name="editDeviceName">Изменение</string>
+    <string name="labelDevice">Новое название устройства</string>
+    <string name="changeMasterPassword">Изменение мастер-пароля</string>
+    <string name="new_password">Новый пароль</string>
+    <string name="new_password_repeat">Новый пароль еще раз</string>
+    <string name="btnChange">Изменить</string>
+    <string name="error_repeat_password">Пароли отличаются</string>
+    <string name="master_password_change_success">Запрос на изменение мастер-пароля устройства отправлен</string>
+    <string name="device_status_is_unstable">Устройство находится в режиме переключения состояния. Повторите попытку позже</string>
+    <string name="turn_off_guard">Снятие с охраны</string>
+    <string name="confirm_turn_off_guard">Вы подтверждает снятие устройства с охраны? В этом случае Ваш объект станет незащищенным</string>
+    <string name="turn_on_guard">Постановка на охрану</string>
+    <string name="confirm_turn_on_guard">Вы подтверждаете постановку устройства на охрану?</string>
+    <string name="unstable_device_list">В режиме переключения</string>
+    <string name="device_modes_not_loaded">Справочник режимов устройств не загружен. Выполните запрос немного позже.</string>
+    <string name="getting_device_list">Получение списка устройств...</string>
+    <string name="unstable_sensor_list">В режиме переключения</string>
+    <string name="getting_sensor_list">Получение списка датчиков...</string>
+    <string name="turnOnSensorsHeader">Активные датчики</string>
+    <string name="turnOffSensorsHeader">Отключенные датчики</string>
+    <string name="sensor_status_is_unstable">Датчик находится в режиме переключения состояния. Повторите попытку позже</string>
+    <string name="request_sent_to_device">Запрос передан на устройство</string>
+    <string name="no_name_sensor"><![CDATA[<без имени>]]></string>
+    <string name="btnAdd">Добавить</string>
+
+</resources>

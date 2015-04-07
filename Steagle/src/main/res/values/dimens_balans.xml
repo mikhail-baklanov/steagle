@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="balansTime">12dp</dimen>
+    <dimen name="balansMessage">14dp</dimen>
+    <dimen name="balansSum">14dp</dimen>
+</resources>

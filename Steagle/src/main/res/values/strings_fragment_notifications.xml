@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="labelPhoneNotifications">НОМЕРА ДЛЯ ЗВОНКОВ</string>
+    <string name="labelSmsNotifications">НОМЕРА ДЛЯ SMS</string>
+    <string name="labelEmailNotifications">EMAIL</string>
+    <string name="action_edit">Редактировать</string>
+    <string name="updating">Обновление</string>
+    <string name="confirmPhoneDelete">Удалить телефон из списка оповещений?</string>
+    <string name="confirmSmsDelete">Удалить телефон из списка оповещений по SMS?</string>
+    <string name="confirmEmailDelete">Удалить email из списка оповещений?</string>
+    <item name="labelPhone" type="id">на телефон</item>
+    <item name="labelSms" type="id">по SMS на телефон</item>
+    <item name="addPhone" type="id">Новое оповещение</item>
+    <item name="addSms" type="id">Новое оповещение</item>
+    <item name="addEmail" type="id">Новое оповещение</item>
+    <item name="labelEmail" type="id">на email</item>
+    <item name="btnSave" type="id">Создать</item>
+    <item name="btnCancel" type="id">Отмена</item>
+    <item name="updatePhone" type="id">Изменить оповещение</item>
+    <item name="updateSms" type="id">Изменить оповещение</item>
+    <item name="updateEmail" type="id">Изменить оповещение</item>
+    <item name="btnUpdate" type="id">Изменить</item>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="personal_phone">Персональный номер телефона:</string>
+    <string name="personal_email">Личная почта:</string>
+    <string name="personalInfo">Персональная информация</string>
+</resources>
