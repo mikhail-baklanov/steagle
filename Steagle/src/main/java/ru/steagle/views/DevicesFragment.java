@@ -49,23 +49,19 @@ public class DevicesFragment extends Fragment {
     private static String[] devicesNumbersText = new String[]{"устройство", "устройства", "устройств"};
     private LayoutInflater inflater;
 
+    private boolean isOnLine(Device d) {
+        String onlineState = dm == null ? null : dm.getOnlineDeviceStateId();
+        return onlineState != null && onlineState.equals(d.getStateId());
+    }
+
     private boolean isOn(Device d) {
         String allowStatusId = dm == null ? null : dm.getAllowDeviceStatusId();
         String onlineState = dm == null ? null : dm.getOnlineDeviceStateId();
-        return (allowStatusId != null && allowStatusId.equals(d.getStatusId()) &&
-                onlineState != null && onlineState.equals(d.getStateId()));
+        return allowStatusId != null && allowStatusId.equals(d.getStatusId()) &&
+                onlineState != null && onlineState.equals(d.getStateId()) &&
+                dm != null && dm.getOnlineDeviceLModeId(d.getLastModeId());
+    }
 
-    }
-    private boolean isOff(Device d) {
-        String allowStatusId = dm == null ? null : dm.getAllowDeviceStatusId();
-        String suspendStatusId = dm == null ? null : dm.getSuspendDeviceStatusId();
-        String onlineState = dm == null ? null : dm.getOnlineDeviceStateId();
-        String offlineState = dm == null ? null : dm.getOfflineDeviceStateId();
-        return (suspendStatusId != null && suspendStatusId.equals(d.getStatusId()) ||
-                allowStatusId != null && allowStatusId.equals(d.getStatusId())) &&
-                (offlineState != null && offlineState.equals(d.getStateId()) ||
-                onlineState != null && onlineState.equals(d.getStateId()));
-    }
     private void refreshDevices() {
 
         view.findViewById(R.id.freeText).setVisibility(View.GONE);
@@ -73,14 +69,15 @@ public class DevicesFragment extends Fragment {
         List<Device> list = dm == null ? new ArrayList<Device>() : dm.getDevices();
         List<Device> allowList = new ArrayList<>();
         List<Device> suspendList = new ArrayList<>();
-        List<Device> unstableList = new ArrayList<>();
+        List<Device> offlineList = new ArrayList<>();
         for (Device d : list) {
-            if (isOn(d))
-                allowList.add(d);
-            else if (isOff(d))
-                suspendList.add(d);
-            else
-                unstableList.add(d);
+            if (isOnLine(d)) {
+                if (isOn(d))
+                    allowList.add(d);
+                else
+                    suspendList.add(d);
+            } else
+                offlineList.add(d);
         }
 
         LinearLayout layout;
@@ -106,7 +103,12 @@ public class DevicesFragment extends Fragment {
         layout = (LinearLayout) view.findViewById(R.id.unstableDevicesContainer);
         tv = (TextView) view.findViewById(R.id.unstableDevicesHeader);
         tv.setText(getString(R.string.unstable_device_list));
-        fillDevicePart(unstableList, R.id.unstableDevicesPart, layout, R.drawable.preloader);
+        if (offlineList.size() == 1)
+            tv.setText("Устройство не в сети".toUpperCase());
+        else
+            tv.setText(("" + offlineList.size() + " " +
+                    devicesNumbersText[Utils.getDeclinationIndex(offlineList.size())] + " не в сети").toUpperCase());
+        fillDevicePart(offlineList, R.id.unstableDevicesPart, layout, R.drawable.lock_gray);
     }
 
     private void showConnectingView() {
@@ -143,11 +145,10 @@ public class DevicesFragment extends Fragment {
                         runSensorsActivity(item);
                     }
                 });
-                v.findViewById(R.id.deviceName).setOnLongClickListener(new View.OnLongClickListener() {
+                v.findViewById(R.id.deviceName).setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public boolean onLongClick(View view) {
+                    public void onClick(View view) {
                         showActionsDialog(item);
-                        return true;
                     }
                 });
                 int onCounter = item.getSensorOnCounter();
@@ -179,7 +180,7 @@ public class DevicesFragment extends Fragment {
                 if (itemIndex == 0) {
                     // Редактировать
                     TextEditDialogFragment d = new TextEditDialogFragment(
-                            item.getDescription(), getString(R.string.labelDevice), item.getDescription(), getString(R.string.btnSave), getString(R.id.btnCancel), new TextEditDialogFragment.Listener() {
+                            item.getDescription(), getString(R.string.labelDevice), item.getDescription(), getString(R.string.btnSave), getString(R.string.btnCancel), new TextEditDialogFragment.Listener() {
                         @Override
                         public void onYesClick(String oldValue, String value, Dialog dialog) {
                             saveDeviceName(item.getId(), value, dialog);
@@ -187,19 +188,40 @@ public class DevicesFragment extends Fragment {
                     });
                     d.show(getFragmentManager(), null);
                 } else if (itemIndex == 1) {
-                    // Изменить мастер пароль устройства
-                    MasterPasswordDialogFragment d = new MasterPasswordDialogFragment(
-                            new MasterPasswordDialogFragment.Listener() {
-                                @Override
-                                public void onYesClick(String password, Dialog dialog) {
-                                    saveMasterPassword(item.getId(), password, dialog);
-                                }
-                            });
-                    d.show(getFragmentManager(), null);
+                    confirmChangePasswordDialog(new Runnable() {
+                        @Override
+                        public void run() {
+                            changeMasterPassword(item);
+                        }
+                    });
                 }
             }
         }).show();
 
+    }
+
+    private void confirmChangePasswordDialog(final Runnable action) {
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.warning)
+                .setMessage(R.string.beforeChangePasswordMessage)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        action.run();
+                    }
+                })
+                .show();
+    }
+
+    private void changeMasterPassword(final Device item) {
+        // Изменить мастер пароль устройства
+        MasterPasswordDialogFragment d = new MasterPasswordDialogFragment(
+                new MasterPasswordDialogFragment.Listener() {
+                    @Override
+                    public void onYesClick(String password, Dialog dialog) {
+                        saveMasterPassword(item.getId(), password, dialog);
+                    }
+                });
+        d.show(getFragmentManager(), null);
     }
 
     private void saveMasterPassword(String deviceId, String password, final Dialog dialog) {
@@ -277,23 +299,20 @@ public class DevicesFragment extends Fragment {
     private void changeDeviceStatus(final Device item) {
         if (isOn(item))
             Utils.showConfirmDialog(getActivity(), getString(R.string.turn_off_guard), getString(R.string.confirm_turn_off_guard),
-                    getString(R.string.btnYes), getString(R.id.btnCancel), new Runnable() {
+                    getString(R.string.btnYes), getString(R.string.btnCancel), new Runnable() {
                 @Override
                 public void run() {
                     turnDeviceOff(item);
                 }
             });
-        else if (isOff(item))
+        else
             Utils.showConfirmDialog(getActivity(), getString(R.string.turn_on_guard), getString(R.string.confirm_turn_on_guard),
-                    getString(R.string.btnYes), getString(R.id.btnCancel), new Runnable() {
+                    getString(R.string.btnYes), getString(R.string.btnCancel), new Runnable() {
                 @Override
                 public void run() {
                     turnDeviceOn(item);
                 }
             });
-        else {
-            Toast.makeText(getActivity(), getString(R.string.device_status_is_unstable), Toast.LENGTH_LONG).show();
-        }
     }
 
     private void turnDeviceOff(final Device item) {
@@ -306,11 +325,16 @@ public class DevicesFragment extends Fragment {
             return;
         }
         String suspendDeviceModeId = dm.getSuspendDeviceModeId();
+        String suspendStatusId = dm == null ? null : dm.getSuspendDeviceStatusId();
         if (suspendDeviceModeId == null) {
             Toast.makeText(getActivity(), getString(R.string.device_modes_not_loaded), Toast.LENGTH_LONG).show();
             return;
         }
-        changeDeviceMode(item.getId(), suspendDeviceModeId);
+        if (suspendStatusId == null) {
+            Toast.makeText(getActivity(), getString(R.string.device_statuses_not_loaded), Toast.LENGTH_LONG).show();
+            return;
+        }
+        changeDeviceMode(item.getId(), suspendDeviceModeId, suspendStatusId);
     }
 
     private void turnDeviceOn(Device item) {
@@ -323,14 +347,19 @@ public class DevicesFragment extends Fragment {
             return;
         }
         String allowDeviceModeId = dm.getAllowDeviceModeId();
+        String allowStatusId = dm == null ? null : dm.getAllowDeviceStatusId();
         if (allowDeviceModeId == null) {
             Toast.makeText(getActivity(), getString(R.string.device_modes_not_loaded), Toast.LENGTH_LONG).show();
             return;
         }
-        changeDeviceMode(item.getId(), allowDeviceModeId);
+        if (allowStatusId == null) {
+            Toast.makeText(getActivity(), getString(R.string.device_statuses_not_loaded), Toast.LENGTH_LONG).show();
+            return;
+        }
+        changeDeviceMode(item.getId(), allowDeviceModeId, allowStatusId);
     }
 
-    private void changeDeviceMode(final String deviceId, final String modeId) {
+    private void changeDeviceMode(final String deviceId, final String modeId, final String statusId) {
         final ProgressDialog d = Utils.getProgressDialog(getActivity());
         Request request = new Request().add(new ChangeDeviceModeCommand(getActivity(), deviceId, modeId));
         Log.d(TAG, "ChangeDeviceMode request: " + request);
@@ -344,7 +373,7 @@ public class DevicesFragment extends Fragment {
                 DeviceChange deviceChange = new DeviceChange(result);
                 if (deviceChange.isOk()) {
                     Toast.makeText(getActivity(), getString(R.string.request_sent_to_device), Toast.LENGTH_LONG).show();
-                    serviceConnector.getServiceBinder().waitForDeviceMode(deviceId, modeId);
+                    serviceConnector.getServiceBinder().waitForDeviceStatus(deviceId, statusId);
                 } else {
                     Toast.makeText(getActivity(), deviceChange.getMessage(), Toast.LENGTH_LONG).show();
                 }
@@ -363,6 +392,8 @@ public class DevicesFragment extends Fragment {
     @Override
     public void onDestroyView() {
         serviceConnector.unbind();
+        if (serviceConnector.getServiceBinder()!=null)
+            serviceConnector.getServiceBinder().deactivateDeviceRequests();
         getActivity().unregisterReceiver(broadcastReceiver);
         super.onDestroyView();
     }
@@ -378,6 +409,7 @@ public class DevicesFragment extends Fragment {
             @Override
             public void run() {
                 dm = serviceConnector.getServiceBinder().getDataModel();
+                serviceConnector.getServiceBinder().activateDeviceRequests();
                 refreshDevices();
             }
         });
@@ -386,7 +418,7 @@ public class DevicesFragment extends Fragment {
                 String object = intent.getStringExtra(SteagleService.OBJECT_NAME);
                 if (Utils.isObjectInSet(object, EnumSet.of(SteagleService.Dictionary.DEV_MODE,
                         SteagleService.Dictionary.DEV_MODE_SRC, SteagleService.Dictionary.DEVICE,
-                        SteagleService.Dictionary.DEVICE_STATUS))) {
+                        SteagleService.Dictionary.DEVICE_STATUS, SteagleService.Dictionary.DEVICE_STATUS_CHANGE))) {
                     refreshDevices();
                 }
             }

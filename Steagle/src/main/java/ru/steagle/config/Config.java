@@ -47,7 +47,7 @@ public class Config {
         SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(context);
         String historyLimit = prefs.getString(Keys.HISTORY_LIMIT.getPrefKey(),
-                context.getResources().getStringArray(R.array.history_limit_values)[1]);
+                context.getResources().getStringArray(R.array.history_limit_values)[3]);
         return historyLimit;
     }
 }

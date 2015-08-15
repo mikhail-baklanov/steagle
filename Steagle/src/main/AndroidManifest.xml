@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ru.steagle"
-    android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionCode="320"
+    android:versionName="0.9" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -13,49 +13,74 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
-
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <application
         android:name="ru.steagle.SteagleApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <service android:name="ru.steagle.service.SteagleService" >
         </service>
-
+        <receiver android:enabled="true" android:name=".service.BootReceiver"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
         <activity
             android:name=".views.MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".views.SensorsActivity"
-            android:label="@string/sensors" >
+            android:label="@string/sensors"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
+            android:name=".views.SensorAddActivity"
+            android:label="@string/sensor_adding"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".views.BalanceActivity"
-            android:label="@string/balans" >
+            android:label="@string/balans"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".views.NotificationsActivity"
-            android:label="@string/notifications" >
+            android:label="@string/notifications"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".views.NotificationsEditActivity"
-            android:label="@string/notifications" >
+            android:label="@string/notifications"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".views.PersonalActivity"
-            android:label="@string/personalInfo" >
+            android:label="@string/personalInfo"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".views.TimeZoneActivity"
-            android:label="@string/timeZones" >
+            android:label="@string/timeZones"
+            android:screenOrientation="portrait">
         </activity>
-		
+        <activity
+            android:name=".views.ErrorActivity"
+            android:label="@string/errors"
+            android:screenOrientation="portrait">
+        </activity>
+
         <activity
             android:name=".views.LoginActivity"
             android:label="@string/title_activity_login"
-            android:windowSoftInputMode="adjustResize|stateVisible" >
+            android:windowSoftInputMode="adjustResize|stateVisible"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -64,7 +89,8 @@
         </activity>
         <activity
             android:name=".views.NotificationsViewActivity"
-            android:label="@string/title_activity_notifications_view" >
+            android:label="@string/title_activity_notifications_view"
+            android:screenOrientation="portrait">
         </activity>
     </application>
 

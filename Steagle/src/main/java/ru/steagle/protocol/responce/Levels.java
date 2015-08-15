@@ -1,7 +1,6 @@
 package ru.steagle.protocol.responce;
 
 import ru.steagle.datamodel.Level;
-import ru.steagle.datamodel.SimpleDictionary;
 
 /**
  * Created by bmw on 15.02.14.

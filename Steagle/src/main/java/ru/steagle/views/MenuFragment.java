@@ -18,6 +18,10 @@ public class MenuFragment extends Fragment {
             {R.drawable.devices, R.drawable.devices_green},
             {R.drawable.journal, R.drawable.journal_green},
             {R.drawable.settings, R.drawable.settings_green}};
+    private static final int HOME_INDEX = 0;
+    private static final int DEVICES_INDEX = 1;
+    private static final int JOURNAL_INDEX = 2;
+    private static final int SETTINGS_INDEX = 3;
 
     public interface Listener {
         void onAccountClick();
@@ -32,6 +36,7 @@ public class MenuFragment extends Fragment {
 
     private View view;
     private Listener listener;
+    private int currentIndex = -1;
 
     @Override
     public void onDetach() {
@@ -45,11 +50,37 @@ public class MenuFragment extends Fragment {
         listener = activity instanceof Listener ? (Listener) activity : null;
     }
 
+    public boolean goHome() {
+        if (currentIndex != HOME_INDEX) {
+            changeCurrentButton(HOME_INDEX);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private void changeCurrentButton(int index) {
-        ((ImageButton)(view.findViewById(R.id.btnAccount))).setImageResource(IMAGES[0][index == 0 ? 1:0]);
-        ((ImageButton)(view.findViewById(R.id.btnDevices))).setImageResource(IMAGES[1][index == 1 ? 1:0]);
-        ((ImageButton)(view.findViewById(R.id.btnHistory))).setImageResource(IMAGES[2][index == 2 ? 1:0]);
-        ((ImageButton)(view.findViewById(R.id.btnSettings))).setImageResource(IMAGES[3][index == 3 ? 1:0]);
+        if (currentIndex == index)
+            return;
+        currentIndex = index;
+        ((ImageButton) (view.findViewById(R.id.btnAccount))).setImageResource(IMAGES[0][index == HOME_INDEX ? 1 : 0]);
+        ((ImageButton) (view.findViewById(R.id.btnDevices))).setImageResource(IMAGES[1][index == DEVICES_INDEX ? 1 : 0]);
+        ((ImageButton) (view.findViewById(R.id.btnHistory))).setImageResource(IMAGES[2][index == JOURNAL_INDEX ? 1 : 0]);
+        ((ImageButton) (view.findViewById(R.id.btnSettings))).setImageResource(IMAGES[3][index == SETTINGS_INDEX ? 1 : 0]);
+        if (listener != null)
+            switch (index) {
+                case HOME_INDEX:
+                    listener.onAccountClick();
+                    break;
+                case DEVICES_INDEX:
+                    listener.onDevicesClick();
+                    break;
+                case JOURNAL_INDEX:
+                    listener.onHistoryClick();
+                    break;
+                default:
+                    listener.onSettingsClick();
+            }
     }
 
     @Override
@@ -58,38 +89,28 @@ public class MenuFragment extends Fragment {
         view.findViewById(R.id.btnAccount).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                changeCurrentButton(0);
-                if (listener != null)
-                    listener.onAccountClick();
+                changeCurrentButton(HOME_INDEX);
             }
         });
         view.findViewById(R.id.btnDevices).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                changeCurrentButton(1);
-                if (listener != null)
-                    listener.onDevicesClick();
+                changeCurrentButton(DEVICES_INDEX);
             }
         });
         view.findViewById(R.id.btnHistory).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                changeCurrentButton(2);
-                if (listener != null)
-                    listener.onHistoryClick();
+                changeCurrentButton(JOURNAL_INDEX);
             }
         });
         view.findViewById(R.id.btnSettings).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                changeCurrentButton(3);
-                if (listener != null)
-                    listener.onSettingsClick();
+                changeCurrentButton(SETTINGS_INDEX);
             }
         });
-        changeCurrentButton(0);
-        if (listener != null)
-            listener.onAccountClick();
+        goHome();
         return view;
     }
 }

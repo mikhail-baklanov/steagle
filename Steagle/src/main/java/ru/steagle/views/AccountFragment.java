@@ -13,12 +13,12 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import ru.steagle.datamodel.DataModel;
 import ru.steagle.R;
+import ru.steagle.datamodel.DataModel;
 import ru.steagle.datamodel.Tarif;
 import ru.steagle.datamodel.TimeZone;
-import ru.steagle.service.SteagleServiceConnector;
 import ru.steagle.service.SteagleService;
+import ru.steagle.service.SteagleServiceConnector;
 
 /**
  * Created by bmw on 08.02.14.
@@ -107,14 +107,15 @@ public class AccountFragment extends Fragment {
     }
 
     private void updateUI() {
-        String status = getActivity().getResources().getString(R.string.unknown_user_status);
-        String userName = getActivity().getResources().getString(R.string.unknown_user_name);
-        String balance = getActivity().getResources().getString(R.string.unknown_balance);
-        String account = getActivity().getResources().getString(R.string.unknown_account);
-        String defCurrency = getActivity().getResources().getString(R.string.unknown_currency);
+        android.content.res.Resources resources = getActivity().getResources();
+        String status = resources.getString(R.string.unknown_user_status);
+        String userName = resources.getString(R.string.unknown_user_name);
+        String balance = resources.getString(R.string.unknown_balance);
+        String account = resources.getString(R.string.unknown_account);
+        String defCurrency = resources.getString(R.string.unknown_currency);
         String currency = defCurrency;
-        String timeZone = getActivity().getResources().getString(R.string.unknown_time_zone);
-        String tarif = getActivity().getResources().getString(R.string.unknown_tarif);
+        String timeZone = resources.getString(R.string.unknown_time_zone);
+        String tarif = resources.getString(R.string.unknown_tarif);
         if (serviceConnector.getServiceBinder() != null) {
             DataModel dm = serviceConnector.getServiceBinder().getDataModel();
             String s = dm.getUserStatus();
@@ -123,13 +124,24 @@ public class AccountFragment extends Fragment {
             userName = dm.getUserName();
             balance = dm.getBalance();
             account = dm.getAccount();
+
+            /* 08.04.2014 Konstantin Yakubov:
+               Дима в протоколе отдает номер  укр. аккаунта обрезанным, есть нюансы на стороне серверного ПО
+               Аккаунт  0442212020 – у нас в строке  где номер счета в окне «аккаунт» отображается 442212020.
+               Можешь, пожалуйста, «0» добавить в случае, если приходит от Димы 9 цифр. Если 10- то все ок.
+             */
+            if (account != null) {
+                if (account.trim().length() == 9)
+                    account = "0" + account.trim();
+            }
+
             currency = dm.getCurrency();
             if (balance != null) {
                 balance += " " + (currency == null ? defCurrency : currency);
             }
             TimeZone tz = dm.getTimeZone();
             if (tz != null) {
-                timeZone = tz.getAbbrev() + " " + tz.getUtcOffset();
+                timeZone = tz.getName();
             }
             Tarif t = dm.getTarif();
             if (t != null) {

@@ -19,17 +19,18 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-import ru.steagle.config.Config;
-import ru.steagle.datamodel.DataModel;
-import ru.steagle.config.Keys;
+import ru.steagle.ExceptionHandler;
 import ru.steagle.R;
 import ru.steagle.SteagleApplication;
-import ru.steagle.service.SteagleServiceConnector;
-import ru.steagle.utils.Utils;
+import ru.steagle.config.Config;
+import ru.steagle.config.Keys;
+import ru.steagle.datamodel.DataModel;
+import ru.steagle.datamodel.UserInfo;
 import ru.steagle.protocol.Request;
 import ru.steagle.protocol.RequestTask;
 import ru.steagle.protocol.request.AuthCommand;
-import ru.steagle.datamodel.UserInfo;
+import ru.steagle.service.SteagleServiceConnector;
+import ru.steagle.utils.Utils;
 
 /**
  * Activity which displays a login screen to the user, offering registration as
@@ -67,8 +68,30 @@ public class LoginActivity extends Activity {
 
         setContentView(R.layout.activity_login);
 
-        ((SteagleApplication)getApplication()).bindSteagleService();
-        serviceConnector.bind(this, null);
+        Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(this));
+
+        ((SteagleApplication) getApplication()).bindSteagleService();
+
+        SharedPreferences prefs = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        final String autoLogin = prefs.getString(Keys.AUTO_LOGIN.getPrefKey(), null);
+        final String prefLogin = prefs.getString(Keys.LOGIN.getPrefKey(), null);
+        final String prefPassword = prefs.getString(Keys.PASSWORD.getPrefKey(), null);
+
+        loginFormView = findViewById(R.id.login_form);
+        loginFormView.setVisibility(View.GONE);
+
+        serviceConnector.bind(this, new Runnable() {
+            @Override
+            public void run() {
+
+                if (AUTO_LOGIN_YES.equals(autoLogin) && prefLogin != null &&
+                        prefPassword != null && prefLogin.trim().length() > 0 &&
+                        prefPassword.trim().length() > 0) {
+                    attemptLogin();
+                } else loginFormView.setVisibility(View.VISIBLE);
+            }
+        });
 
         // Set up the login form.
         loginTextEdit = (EditText) findViewById(R.id.login);
@@ -85,7 +108,6 @@ public class LoginActivity extends Activity {
             }
         });
 
-        loginFormView = findViewById(R.id.login_form);
         loginStatusView = findViewById(R.id.login_status);
         loginStatusTextView = (TextView) findViewById(R.id.login_status_message);
 
@@ -99,32 +121,28 @@ public class LoginActivity extends Activity {
         radioAutoLogin = (RadioButton) findViewById(R.id.radioAutoLogin);
         RadioButton radioSavePassword = (RadioButton) findViewById(R.id.radioSavePassword);
         radioDontSavePassword = (RadioButton) findViewById(R.id.radioDontSavePassword);
-        SharedPreferences prefs = PreferenceManager
-                .getDefaultSharedPreferences(this);
-        String autoLogin = prefs.getString(Keys.AUTO_LOGIN.getPrefKey(), null);
-        String prefLogin = prefs.getString(Keys.LOGIN.getPrefKey(), null);
-        String prefPassword = prefs.getString(Keys.PASSWORD.getPrefKey(), null);
-        switch (autoLogin) {
-            case AUTO_LOGIN_YES:
-                radioAutoLogin.setChecked(true);
-                loginTextEdit.setText(prefLogin);
-                passwordTextEdit.setText(prefPassword);
-                if (prefLogin != null && prefPassword != null && prefLogin.trim().length() > 0 && prefPassword.trim().length() > 0)
-                    attemptLogin();
-                break;
-            case AUTO_LOGIN_ASK:
-                radioSavePassword.setChecked(true);
-                loginTextEdit.setText(prefLogin);
-                passwordTextEdit.setText(prefPassword);
-                break;
-            case AUTO_LOGIN_NEVER:
-                radioDontSavePassword.setChecked(true);
-                break;
-            default:
-                radioSavePassword.setChecked(true);
-                break;
+        if (autoLogin == null) {
+            radioSavePassword.setChecked(true);
+        } else {
+            switch (autoLogin) {
+                case AUTO_LOGIN_YES:
+                    radioAutoLogin.setChecked(true);
+                    loginTextEdit.setText(prefLogin);
+                    passwordTextEdit.setText(prefPassword);
+                    break;
+                case AUTO_LOGIN_ASK:
+                    radioSavePassword.setChecked(true);
+                    loginTextEdit.setText(prefLogin);
+                    passwordTextEdit.setText(prefPassword);
+                    break;
+                case AUTO_LOGIN_NEVER:
+                    radioDontSavePassword.setChecked(true);
+                    break;
+                default:
+                    radioSavePassword.setChecked(true);
+                    break;
+            }
         }
-
     }
 
 
@@ -236,7 +254,7 @@ public class LoginActivity extends Activity {
     @Override
     protected void onDestroy() {
         serviceConnector.unbind();
-        ((SteagleApplication)getApplication()).unBindSteagleService();
+        ((SteagleApplication) getApplication()).unBindSteagleService();
         super.onDestroy();
     }
 

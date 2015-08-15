@@ -19,16 +19,16 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 
-import ru.steagle.config.Config;
 import ru.steagle.R;
-import ru.steagle.service.SteagleServiceConnector;
-import ru.steagle.utils.Utils;
+import ru.steagle.config.Config;
+import ru.steagle.datamodel.Pay;
 import ru.steagle.protocol.Request;
 import ru.steagle.protocol.RequestTask;
 import ru.steagle.protocol.request.GetPaysCommand;
-import ru.steagle.datamodel.Pay;
 import ru.steagle.protocol.responce.Pays;
 import ru.steagle.service.SteagleService;
+import ru.steagle.service.SteagleServiceConnector;
+import ru.steagle.utils.Utils;
 
 /**
  * Created by bmw on 09.02.14.
@@ -89,7 +89,7 @@ public class BalanceActivity extends Activity {
             @Override
             public void onClick(View view) {
                 PeriodEditDialogFragment dialog = new PeriodEditDialogFragment(
-                        getString(R.string.enter_report_period), startDate, endDate, getString(R.string.btnCreateReport), getString(R.id.btnCancel), new PeriodEditDialogFragment.Listener() {
+                        getString(R.string.enter_report_period), startDate, endDate, getString(R.string.btnCreateReport), getString(R.string.btnCancel), new PeriodEditDialogFragment.Listener() {
                     @Override
                     public void onYesClick(Date startD, Date endD) {
                         startDate = startD;

@@ -1,4 +1,4 @@
-package ru.steagle.datamodel;
+package ru.steagle.protocol.responce;
 
 import android.sax.Element;
 import android.sax.EndTextElementListener;
@@ -11,7 +11,7 @@ import org.xml.sax.Attributes;
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.steagle.protocol.responce.BaseResult;
+import ru.steagle.datamodel.SimpleDictionaryElem;
 
 /**
  * Created by bmw on 15.02.14.

@@ -38,6 +38,7 @@ public class GetPaysCommand extends AccountCommand {
     @Override
     protected void serializePrivateAttributes(XmlSerializer serializer) throws IOException {
         super.serializePrivateAttributes(serializer);
+
         if (b != null && e != null) {
             Calendar c = GregorianCalendar.getInstance();
             c.setTime(b);

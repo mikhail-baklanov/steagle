@@ -47,7 +47,7 @@ public class NotificationsEditActivity extends Activity {
                     @Override
                     public void onClick(View view) {
                         TextEditDialogFragment dialog = new TextEditDialogFragment(
-                                getString(R.id.updatePhone), getString(R.id.labelPhone), item, getString(R.id.btnUpdate), getString(R.id.btnCancel), new TextEditDialogFragment.Listener() {
+                                getString(R.string.updatePhone), getString(R.string.labelPhone), item, getString(R.string.btnUpdate), getString(R.string.btnCancel), new TextEditDialogFragment.Listener() {
                             @Override
                             public void onYesClick(String oldValue, String value, Dialog dialog) {
                                 updatePhone(oldValue, value, dialog);
@@ -59,7 +59,7 @@ public class NotificationsEditActivity extends Activity {
                 v.findViewById(R.id.btnDelete).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Utils.showConfirmDialog(NotificationsEditActivity.this, null, getString(R.string.confirmPhoneDelete), getString(R.string.btnYes), getString(R.id.btnCancel), new Runnable() {
+                        Utils.showConfirmDialog(NotificationsEditActivity.this, null, getString(R.string.confirmPhoneDelete), getString(R.string.btnYes), getString(R.string.btnCancel), new Runnable() {
                             @Override
                             public void run() {
                                 deletePhone(item);
@@ -80,7 +80,7 @@ public class NotificationsEditActivity extends Activity {
                     @Override
                     public void onClick(View view) {
                         TextEditDialogFragment dialog = new TextEditDialogFragment(
-                                getString(R.id.updateSms), getString(R.id.labelSms), item, getString(R.id.btnUpdate), getString(R.id.btnCancel), new TextEditDialogFragment.Listener() {
+                                getString(R.string.updateSms), getString(R.string.labelSms), item, getString(R.string.btnUpdate), getString(R.string.btnCancel), new TextEditDialogFragment.Listener() {
                             @Override
                             public void onYesClick(String oldValue, String value, Dialog dialog) {
                                 updateSms(oldValue, value, dialog);
@@ -93,7 +93,7 @@ public class NotificationsEditActivity extends Activity {
                 v.findViewById(R.id.btnDelete).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Utils.showConfirmDialog(NotificationsEditActivity.this, null, getString(R.string.confirmSmsDelete), getString(R.string.btnYes), getString(R.id.btnCancel), new Runnable() {
+                        Utils.showConfirmDialog(NotificationsEditActivity.this, null, getString(R.string.confirmSmsDelete), getString(R.string.btnYes), getString(R.string.btnCancel), new Runnable() {
                             @Override
                             public void run() {
                                 deleteSms(item);
@@ -115,7 +115,7 @@ public class NotificationsEditActivity extends Activity {
                     @Override
                     public void onClick(View view) {
                         TextEditDialogFragment dialog = new TextEditDialogFragment(
-                                getString(R.id.updateEmail), getString(R.id.labelEmail), item, getString(R.id.btnUpdate), getString(R.id.btnCancel), new TextEditDialogFragment.Listener() {
+                                getString(R.string.updateEmail), getString(R.string.labelEmail), item, getString(R.string.btnUpdate), getString(R.string.btnCancel), new TextEditDialogFragment.Listener() {
                             @Override
                             public void onYesClick(String oldValue, String value, Dialog dialog) {
                                 updateEmail(oldValue, value, dialog);
@@ -129,7 +129,7 @@ public class NotificationsEditActivity extends Activity {
                     @Override
                     public void onClick(View view) {
                         Utils.showConfirmDialog(NotificationsEditActivity.this, null,
-                                getString(R.string.confirmEmailDelete), getString(R.string.btnYes), getString(R.id.btnCancel), new Runnable() {
+                                getString(R.string.confirmEmailDelete), getString(R.string.btnYes), getString(R.string.btnCancel), new Runnable() {
                             @Override
                             public void run() {
                                 deleteEmail(item);
@@ -204,7 +204,7 @@ public class NotificationsEditActivity extends Activity {
             @Override
             public void onClick(View view) {
                 TextEditDialogFragment dialog = new TextEditDialogFragment(
-                        getString(R.id.addPhone), getString(R.id.labelPhone), "", getString(R.id.btnSave), getString(R.id.btnCancel), new TextEditDialogFragment.Listener() {
+                        getString(R.string.addPhone), getString(R.string.labelPhone), "", getString(R.string.btnCreate), getString(R.string.btnCancel), new TextEditDialogFragment.Listener() {
                     @Override
                     public void onYesClick(String oldValue, String value, Dialog dialog) {
                         addPhone(value, dialog);
@@ -217,12 +217,13 @@ public class NotificationsEditActivity extends Activity {
             @Override
             public void onClick(View view) {
                 TextEditDialogFragment dialog = new TextEditDialogFragment(
-                        getString(R.id.addSms), getString(R.id.labelSms), "", getString(R.id.btnSave), getString(R.id.btnCancel), new TextEditDialogFragment.Listener() {
+                        getString(R.string.addSms), getString(R.string.labelSms), "", getString(R.string.btnCreate), getString(R.string.btnCancel), new TextEditDialogFragment.Listener() {
                     @Override
                     public void onYesClick(String oldValue, String value, Dialog dialog) {
                         addSms(value, dialog);
                     }
                 });
+
                 dialog.show(getFragmentManager(), null);
             }
         });
@@ -230,7 +231,7 @@ public class NotificationsEditActivity extends Activity {
             @Override
             public void onClick(View view) {
                 TextEditDialogFragment dialog = new TextEditDialogFragment(
-                        getString(R.id.addEmail), getString(R.id.labelEmail), "", getString(R.id.btnSave), getString(R.id.btnCancel), new TextEditDialogFragment.Listener() {
+                        getString(R.string.addEmail), getString(R.string.labelEmail), "", getString(R.string.btnCreate), getString(R.string.btnCancel), new TextEditDialogFragment.Listener() {
                     @Override
                     public void onYesClick(String oldValue, String value, Dialog dialog) {
                         addEmail(value, dialog);

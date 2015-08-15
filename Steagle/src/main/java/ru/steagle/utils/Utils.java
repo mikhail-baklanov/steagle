@@ -6,10 +6,18 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Environment;
 import android.os.Vibrator;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.widget.Toast;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -20,7 +28,7 @@ import ru.steagle.config.Config;
 import ru.steagle.service.SteagleService;
 
 public class Utils {
-    private static final String TAG = Utils.class.toString();
+    private static final String TAG = Utils.class.getName();
 
     /**
      * Получение номера формы существительного для заданного количества.
@@ -62,6 +70,21 @@ public class Utils {
         day.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
         return day.getTime();
     }
+    public static Date getNextDay(Date d) {
+        Calendar c = GregorianCalendar.getInstance();
+        c.setTime(d);
+        Calendar day = GregorianCalendar.getInstance();
+        day.clear();
+        day.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH));
+        day.add(Calendar.DAY_OF_MONTH, 1);
+        return day.getTime();
+    }
+    public static Date getNextMs(Date d) {
+        Calendar c = GregorianCalendar.getInstance();
+        c.setTime(d);
+        c.add(Calendar.MILLISECOND, 1);
+        return c.getTime();
+    }
 
     public static void showConfirmDialog(Context context, String title, String message, String yesButtonText, String noButtonText, final Runnable onYesClick) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context)
@@ -80,7 +103,7 @@ public class Utils {
 
     public static ProgressDialog getProgressDialog(Context context) {
         ProgressDialog dialog = new ProgressDialog(context);
-        dialog.setMessage(context.getResources().getString(R.string.updating));
+        dialog.setMessage(context.getResources().getString(R.string.sending_request));
         dialog.setIndeterminate(true);
         dialog.setCancelable(false);
         return dialog;
@@ -117,6 +140,25 @@ public class Utils {
         return telephonyManager != null && telephonyManager.isNetworkRoaming();
     }
 
+    public static String getStackTrace(Throwable e) {
+        StringWriter stackTrace = new StringWriter();
+        e.printStackTrace(new PrintWriter(stackTrace));
+        return stackTrace.toString();
+
+    }
+    public static void writeLogMessage(String message, boolean append) {
+        if (append)
+            return;
+        try {
+            File log = new File(Environment.getExternalStorageDirectory(), "steagle.txt");
+            Writer out = new BufferedWriter(new FileWriter(log, true));
+            out.write(message);
+            out.close();
+        } catch (Exception e) {
+            Log.e(TAG, "Error creating log file", e);
+        }
+
+    }
     public static boolean isNetworkAvailable(Context context) {
         boolean isWifiOn = Utils.detectWiFi(context);
 //        Log.d(TAG, "Wifi is " + (isWifiOn ? "ON" : "OFF"));

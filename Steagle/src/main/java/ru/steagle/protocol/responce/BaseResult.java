@@ -14,8 +14,11 @@ public class BaseResult {
         return message;
     }
 
-    private void setMessage(String message) {
+    protected void setMessage(String message) {
         this.message = message;
+    }
+    protected void setOk(boolean ok) {
+        this.ok = ok;
     }
 
     protected void readBaseFields(Attributes attrib) {

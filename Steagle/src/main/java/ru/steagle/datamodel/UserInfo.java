@@ -1,11 +1,11 @@
 package ru.steagle.datamodel;
 
-import org.xml.sax.Attributes;
-
 import android.sax.Element;
 import android.sax.RootElement;
 import android.sax.StartElementListener;
 import android.util.Xml;
+
+import org.xml.sax.Attributes;
 
 import java.util.StringTokenizer;
 
@@ -133,16 +133,18 @@ public class UserInfo extends BaseResult {
             StringTokenizer st = new StringTokenizer(notifyFlags, ",");
             while (st.hasMoreTokens()) {
                 String flag = st.nextToken();
-                switch (flag) {
-                    case ChangeNotifyFlagCommand.SMS:
-                        smsNotifyEnabled = false;
-                        break;
-                    case ChangeNotifyFlagCommand.EMAIL:
-                        emailNotifyEnabled = false;
-                        break;
-                    case ChangeNotifyFlagCommand.PHONE:
-                        phoneNotifyEnabled = false;
-                        break;
+                if (flag != null) {
+                    switch (flag) {
+                        case ChangeNotifyFlagCommand.SMS:
+                            smsNotifyEnabled = false;
+                            break;
+                        case ChangeNotifyFlagCommand.EMAIL:
+                            emailNotifyEnabled = false;
+                            break;
+                        case ChangeNotifyFlagCommand.PHONE:
+                            phoneNotifyEnabled = false;
+                            break;
+                    }
                 }
             }
         }

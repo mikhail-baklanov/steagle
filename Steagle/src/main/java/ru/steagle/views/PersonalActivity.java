@@ -1,27 +1,24 @@
 package ru.steagle.views;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import ru.steagle.R;
 import ru.steagle.config.Config;
 import ru.steagle.datamodel.DataModel;
-import ru.steagle.R;
-import ru.steagle.service.SteagleServiceConnector;
-import ru.steagle.utils.Utils;
+import ru.steagle.datamodel.UserInfo;
 import ru.steagle.protocol.Request;
 import ru.steagle.protocol.RequestTask;
 import ru.steagle.protocol.request.ChangePersonalInfoCommand;
-import ru.steagle.datamodel.UserInfo;
+import ru.steagle.service.SteagleServiceConnector;
+import ru.steagle.utils.Utils;
 
 /**
  * Created by bmw on 09.02.14.

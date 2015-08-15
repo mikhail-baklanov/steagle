@@ -9,7 +9,7 @@
     <string name="dont_save_password">не сохранять пароль</string>
     <string name="action_login">Войти</string>
 
-    <string name="error_incorrect_password">Неверный пароль или отсутствует подключение к сети</string>
+    <string name="error_incorrect_password">Неверный пароль</string>
     <string name="error_field_required">Введите значение</string>
 
     <string name="login_progress_signing_in">Авторизация&#8230;</string>

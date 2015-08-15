@@ -1,47 +1,33 @@
 package ru.steagle.service;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.util.TimeUtils;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import ru.steagle.config.Config;
 import ru.steagle.datamodel.DataModel;
-import ru.steagle.protocol.request.GetDeviceStatesCommand;
-import ru.steagle.protocol.request.GetSensorStatusesCommand;
-import ru.steagle.protocol.responce.DeviceStates;
-import ru.steagle.protocol.responce.SensorStatuses;
-import ru.steagle.views.NotificationsViewActivity;
-import ru.steagle.R;
-import ru.steagle.utils.Utils;
+import ru.steagle.datamodel.Device;
+import ru.steagle.datamodel.Event;
+import ru.steagle.datamodel.Sensor;
 import ru.steagle.protocol.Request;
-import ru.steagle.protocol.RequestTask;
 import ru.steagle.protocol.request.Command;
 import ru.steagle.protocol.request.GetCurrenciesCommand;
 import ru.steagle.protocol.request.GetDevModeSrcsCommand;
 import ru.steagle.protocol.request.GetDevModesCommand;
+import ru.steagle.protocol.request.GetDeviceStatesCommand;
 import ru.steagle.protocol.request.GetDeviceStatusesCommand;
 import ru.steagle.protocol.request.GetDevicesCommand;
 import ru.steagle.protocol.request.GetLevelsCommand;
-import ru.steagle.protocol.request.GetNotificationsCommand;
-import ru.steagle.protocol.request.GetNotifySessionCommand;
+import ru.steagle.protocol.request.GetSensorStatusesCommand;
+import ru.steagle.protocol.request.GetSensorTypesCommand;
 import ru.steagle.protocol.request.GetSensorsCommand;
 import ru.steagle.protocol.request.GetTarifsCommand;
 import ru.steagle.protocol.request.GetTimeZonesCommand;
@@ -49,55 +35,42 @@ import ru.steagle.protocol.request.GetUserStatusesCommand;
 import ru.steagle.protocol.responce.Currencies;
 import ru.steagle.protocol.responce.DevModeSrcs;
 import ru.steagle.protocol.responce.DevModes;
-import ru.steagle.datamodel.Device;
+import ru.steagle.protocol.responce.DeviceStates;
 import ru.steagle.protocol.responce.DeviceStatuses;
 import ru.steagle.protocol.responce.Devices;
 import ru.steagle.protocol.responce.Levels;
-import ru.steagle.protocol.responce.Notifications;
-import ru.steagle.protocol.responce.NotifySession;
-import ru.steagle.datamodel.Sensor;
+import ru.steagle.protocol.responce.SensorStatuses;
+import ru.steagle.protocol.responce.SensorTypes;
 import ru.steagle.protocol.responce.Sensors;
 import ru.steagle.protocol.responce.Tarifs;
 import ru.steagle.protocol.responce.TimeZones;
 import ru.steagle.protocol.responce.UserStatuses;
+import ru.steagle.utils.Utils;
 
 public class SteagleService extends Service {
     public static final String BROADCAST_ACTION = SteagleService.class.getCanonicalName();
     public static final String OBJECT_NAME = "objectName";
+    public static final String TAG = SteagleService.class.getName();
+    public static final String HISTORY_REQUEST_ID = "historyRequestId";
 
-    private static final int DICTIONARY_REQUEST_PAUSE_MS = 60000;
-    private static final int NOTIFICATIONS_REQUEST_PAUSE_MS = 10000;
-    private static final String TAG = SteagleService.class.toString();
-    private long time2loadDictionaries;
-    private long time2loadNotifications;
-    private String sessionId;
-    private int notificationID;
-    private List<WaitingObject> waitingObjects = new ArrayList<>();
-
-    private static class WaitingObject {
-        private long time2load;
-        private long time2stop;
-        private Dictionary object;
-        public WaitingObject(Dictionary object, long time2stop) {
-            this.object = object;
-            this.time2stop = time2stop;
-            this.time2load = new Date().getTime() + 10000;
-        }
-    }
+    private List<IRequestDataCommand> requestDataCommands = new ArrayList<>();
 
     public enum Dictionary {
         USER_STATUS, CURRENCY, LEVEL, TIME_ZONE, TARIF, DEVICE_STATUS,
-        DEV_MODE_SRC, DEV_MODE, DEVICE, SENSOR, SENSOR_STATUS, DEVICE_STATE
+        DEV_MODE_SRC, DEV_MODE, DEVICE, SENSOR, SENSOR_STATUS, DEVICE_STATUS_CHANGE,
+        SENSOR_STATUS_CHANGE, DEVICE_STATE, SENSOR_TYPE, HISTORY
     }
 
     private DataModel dm = new DataModel();
-    private Set<Dictionary> loadedDictionaries = new HashSet<>();
-    private Set<Dictionary> loadingDictionaries = new HashSet<>();
-    private static final Set<Dictionary> DICTIONARIES_LIST = EnumSet.allOf(Dictionary.class);
     private final IBinder binder = new LocalBinder();
     private Thread mainThread;
-    private Thread notificationsThread;
-    private boolean notificationsLoading;
+
+    private IBroadcastSender broadcastSender = new IBroadcastSender() {
+        @Override
+        public void sendBroadcast(Intent intent) {
+            SteagleService.this.sendBroadcast(intent);
+        }
+    };
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -117,149 +90,268 @@ public class SteagleService extends Service {
     }
 
     private void startMainLoop() {
+        Log.d(TAG, "start main loop");
         mainThread = new Thread(new Runnable() {
             @Override
             public void run() {
+                requestDataCommands.clear();
+                initRequestDataCommands();
                 mainLoop();
             }
         });
         mainThread.start();
-        notificationsThread = new Thread(new Runnable() {
+    }
+
+    private void initRequestDataCommands() {
+
+        requestDataCommands.add(new DictionaryRequestCommand(Dictionary.USER_STATUS, dm, broadcastSender) {
             @Override
-            public void run() {
-                notificationsLoop();
+            public void runLoading(final DataModel dataModel, final AsyncRun asyncRun) {
+                loadObjects(dictionary, new GetUserStatusesCommand(), new IResultProcessor() {
+                    @Override
+                    public void process(String result) {
+                        UserStatuses objects = new UserStatuses(result);
+                        if (objects.isOk()) {
+                            dm.setUserStatuses(objects.getList());
+                            asyncRun.onSuccess(null);
+                        } else {
+                            asyncRun.onFailure();
+                        }
+                    }
+                });
+
             }
         });
-        notificationsThread.start();
-    }
 
-    private void notificationsLoop() {
-        while (!notificationsThread.interrupted()) {
-            try {
-                TimeUnit.SECONDS.sleep(1);
-                if (!notificationsLoading && Utils.isNetworkAvailable(this)) {
-                    long currentTime = new Date().getTime();
-                    if (currentTime > time2loadNotifications) {
-                        time2loadNotifications = currentTime + NOTIFICATIONS_REQUEST_PAUSE_MS;
-                        loadNotifications();
+        requestDataCommands.add(new DictionaryRequestCommand(Dictionary.CURRENCY, dm, broadcastSender) {
+            @Override
+            public void runLoading(final DataModel dataModel, final AsyncRun asyncRun) {
+                loadObjects(dictionary, new GetCurrenciesCommand(), new IResultProcessor() {
+                    @Override
+                    public void process(String result) {
+                        Currencies objects = new Currencies(result);
+                        if (objects.isOk()) {
+                            dm.setCurrencies(objects.getList());
+                            asyncRun.onSuccess(null);
+                        } else {
+                            asyncRun.onFailure();
+                        }
                     }
-                }
-            } catch (InterruptedException e) {
-                Log.d(TAG, "Exception: " + e.getMessage());
+                });
             }
-        }
-    }
+        });
 
-    private void getNotificationsSession(final Runnable onSuccess) {
-        notificationsLoading = true;
-        Request request = new Request().add(new GetNotifySessionCommand(getBaseContext()));
-        Log.d(TAG, "get notifications session request: " + request);
-        RequestTask requestTask = new RequestTask(Config.getNotifyServer(this)) {
+        requestDataCommands.add(new DictionaryRequestCommand(Dictionary.TIME_ZONE, dm, broadcastSender) {
             @Override
-            public void onPostExecute(String result) {
-                notificationsLoading = false;
-                Log.d(TAG, "get notifications session response: " + result);
-                NotifySession objects = new NotifySession(result);
-                if (objects.isOk()) {
-                    sessionId = objects.getSessionId();
-                    onSuccess.run();
-                }
+            public void runLoading(final DataModel dataModel, final AsyncRun asyncRun) {
+                loadObjects(dictionary, new GetTimeZonesCommand(), new IResultProcessor() {
+                    @Override
+                    public void process(String result) {
+                        TimeZones objects = new TimeZones(result);
+                        if (objects.isOk()) {
+                            dm.setTimeZones(objects.getList());
+                            asyncRun.onSuccess(null);
+                        } else {
+                            asyncRun.onFailure();
+                        }
+                    }
+                });
             }
+        });
 
+        requestDataCommands.add(new DictionaryRequestCommand(Dictionary.TARIF, dm, broadcastSender) {
             @Override
-            protected void onCancelled() {
-                notificationsLoading = false;
+            public void runLoading(final DataModel dataModel, final AsyncRun asyncRun) {
+                loadObjects(dictionary, new GetTarifsCommand(), new IResultProcessor() {
+                    @Override
+                    public void process(String result) {
+                        Tarifs objects = new Tarifs(result);
+                        if (objects.isOk()) {
+                            dm.setTarifs(objects.getList());
+                            asyncRun.onSuccess(null);
+                        } else {
+                            asyncRun.onFailure();
+                        }
+                    }
+                });
             }
+        });
 
-        };
-        requestTask.execute(request.serialize());
-    }
-
-    private void loadNotifications() {
-        if (sessionId == null) {
-            getNotificationsSession(new Runnable() {
-                @Override
-                public void run() {
-                    doNotificationsRequest();
-                }
-            });
-        } else {
-            doNotificationsRequest();
-        }
-    }
-
-    private void doNotificationsRequest() {
-        if (sessionId == null) {
-            return;
-        }
-        notificationsLoading = true;
-        Request request = new Request().add(new GetNotificationsCommand(sessionId));
-        Log.d(TAG, "get notifications request: " + request);
-        RequestTask requestTask = new RequestTask(Config.getNotifyServer(this)) {
+        requestDataCommands.add(new DictionaryRequestCommand(Dictionary.DEV_MODE, dm, broadcastSender) {
             @Override
-            public void onPostExecute(String result) {
-                notificationsLoading = false;
-                Log.d(TAG, "get notifications response: " + result);
-                Notifications objects = new Notifications(result);
-                if (objects.isOk()) {
+            public void runLoading(final DataModel dataModel, final AsyncRun asyncRun) {
+                loadObjects(dictionary, new GetDevModesCommand(), new IResultProcessor() {
+                    @Override
+                    public void process(String result) {
+                        DevModes objects = new DevModes(result);
+                        if (objects.isOk()) {
+                            dm.setDevModes(objects.getList());
+                            asyncRun.onSuccess(null);
+                        } else {
+                            asyncRun.onFailure();
+                        }
+                    }
+                });
+            }
+        });
 
-//                    List<ru.steagle.request.responce.Notification> n = new ArrayList<>();
-//                    ru.steagle.request.responce.Notification n1;
-//                    n1 = new ru.steagle.request.responce.Notification();
-//                    n1.setDate(new Date());
-//                    n1.setText("tutu1");
-//                    n.add(n1);
-//                    n1 = new ru.steagle.request.responce.Notification();
-//                    n1.setDate(new Date());
-//                    n1.setText("tutu2");
-//                    n.add(n1);
-//                    showNotifications(n);
+        requestDataCommands.add(new DictionaryRequestCommand(Dictionary.DEV_MODE_SRC, dm, broadcastSender) {
+            @Override
+            public void runLoading(final DataModel dataModel, final AsyncRun asyncRun) {
+                loadObjects(dictionary, new GetDevModeSrcsCommand(), new IResultProcessor() {
+                    @Override
+                    public void process(String result) {
+                        DevModeSrcs objects = new DevModeSrcs(result);
+                        if (objects.isOk()) {
+                            dm.setDevModeSrcs(objects.getList());
+                            asyncRun.onSuccess(null);
+                        } else {
+                            asyncRun.onFailure();
+                        }
+                    }
+                });
+            }
+        });
 
-                    if (objects.getList().size() > 0)
-                        showNotifications(objects.getList());
+        requestDataCommands.add(new DictionaryRequestCommand(Dictionary.LEVEL, dm, broadcastSender) {
+            @Override
+            public void runLoading(final DataModel dataModel, final AsyncRun asyncRun) {
+                loadObjects(dictionary, new GetLevelsCommand(), new IResultProcessor() {
+                    @Override
+                    public void process(String result) {
+                        Levels objects = new Levels(result);
+                        if (objects.isOk()) {
+                            dm.setLevels(objects.getList());
+                            asyncRun.onSuccess(null);
+                        } else {
+                            asyncRun.onFailure();
+                        }
+                    }
+                });
+            }
+        });
+
+        requestDataCommands.add(new DictionaryRequestCommand(Dictionary.DEVICE_STATUS, dm, broadcastSender) {
+            @Override
+            public void runLoading(final DataModel dataModel, final AsyncRun asyncRun) {
+                loadObjects(dictionary, new GetDeviceStatusesCommand(), new IResultProcessor() {
+                    @Override
+                    public void process(String result) {
+                        DeviceStatuses objects = new DeviceStatuses(result);
+                        if (objects.isOk()) {
+                            dm.setDeviceStatuses(objects.getList());
+                            asyncRun.onSuccess(null);
+                        } else {
+                            asyncRun.onFailure();
+                        }
+                    }
+                });
+            }
+        });
+
+        requestDataCommands.add(new DictionaryRequestCommand(Dictionary.DEVICE_STATE, dm, broadcastSender) {
+            @Override
+            public void runLoading(final DataModel dataModel, final AsyncRun asyncRun) {
+                loadObjects(dictionary, new GetDeviceStatesCommand(), new IResultProcessor() {
+                    @Override
+                    public void process(String result) {
+                        DeviceStates objects = new DeviceStates(result);
+                        if (objects.isOk()) {
+                            dm.setDeviceStates(objects.getList());
+                            asyncRun.onSuccess(null);
+                        } else {
+                            asyncRun.onFailure();
+                        }
+                    }
+                });
+            }
+        });
+
+        requestDataCommands.add(new DictionaryRequestCommand(Dictionary.SENSOR_STATUS, dm, broadcastSender) {
+            @Override
+            public void runLoading(final DataModel dataModel, final AsyncRun asyncRun) {
+                loadObjects(dictionary, new GetSensorStatusesCommand(), new IResultProcessor() {
+                    @Override
+                    public void process(String result) {
+                        SensorStatuses objects = new SensorStatuses(result);
+                        if (objects.isOk()) {
+                            dm.setSensorStatuses(objects.getList());
+                            asyncRun.onSuccess(null);
+                        } else {
+                            asyncRun.onFailure();
+                        }
+                    }
+                });
+            }
+        });
+
+        requestDataCommands.add(new DictionaryRequestCommand(Dictionary.SENSOR_TYPE, dm, broadcastSender) {
+            @Override
+            public void runLoading(final DataModel dataModel, final AsyncRun asyncRun) {
+                loadObjects(dictionary, new GetSensorTypesCommand(), new IResultProcessor() {
+                    @Override
+                    public void process(String result) {
+                        SensorTypes objects = new SensorTypes(result);
+                        if (objects.isOk()) {
+                            dm.setSensorTypes(objects.getList());
+                            asyncRun.onSuccess(null);
+                        } else {
+                            asyncRun.onFailure();
+                        }
+                    }
+                });
+            }
+        });
+
+        requestDataCommands.add(new DictionaryRequestCommand(this, Dictionary.DEVICE, dm, broadcastSender) {
+            @Override
+            public void runLoading(final DataModel dataModel, final AsyncRun asyncRun) {
+                loadObjects(dictionary, new GetDevicesCommand(getBaseContext()), new IResultProcessor() {
+                    @Override
+                    public void process(String result) {
+                        Devices objects = new Devices(result);
+                        if (objects.isOk()) {
+                            dm.setDevices(objects.getList());
+                            asyncRun.onSuccess(null);
+                        } else {
+                            asyncRun.onFailure();
+                        }
+                    }
+                });
+            }
+        });
+
+        requestDataCommands.add(new DictionaryRequestCommand(this, Dictionary.SENSOR, dm, broadcastSender) {
+            @Override
+            public void runLoading(final DataModel dataModel, final AsyncRun asyncRun) {
+                if (dm.getDevices() == null || dm.getDevices().size() == 0) {
+                    asyncRun.onFailure();
+                    // если устойства не считаны, время ожидания изменяем на 1 сек, чтобы быстрее дождаться считанных устройств
+                    time2load = System.currentTimeMillis() + 1000;
                 } else {
-                    sessionId = null;
+                    List<Command> commandList = new ArrayList<>();
+                    for (Device d : dm.getDevices())
+                        commandList.add(new GetSensorsCommand(getBaseContext(), d.getId()));
+                    loadObjects(dictionary, commandList, new IResultProcessor() {
+                        @Override
+                        public void process(String result) {
+                            Sensors objects = new Sensors(result);
+                            if (objects.isOk()) {
+                                dm.setSensors(objects.getList());
+                                asyncRun.onSuccess(null);
+                                notifyObjectChanges(Dictionary.DEVICE);
+                            } else {
+                                asyncRun.onFailure();
+                            }
+                        }
+                    });
                 }
             }
+        });
 
-            @Override
-            protected void onCancelled() {
-                notificationsLoading = false;
-            }
+        requestDataCommands.add(new InfiniteDeviceRequestCommand(this, dm, broadcastSender));
+        requestDataCommands.add(new NotificationRequestCommand(this));
 
-        };
-        requestTask.execute(request.serialize());
-    }
-
-    private void showNotifications(List<ru.steagle.datamodel.Notification> objects) {
-        NotificationManager manager = (NotificationManager) getBaseContext().
-                getSystemService(Context.NOTIFICATION_SERVICE);
-
-        int def = (Config.isNotifySoundOn(getBaseContext()) ? Notification.DEFAULT_SOUND : 0) |
-                (Config.isNotifyVibroOn(getBaseContext()) ? Notification.DEFAULT_VIBRATE : 0) | Notification.DEFAULT_LIGHTS;
-
-        StringBuilder message = new StringBuilder();
-        SimpleDateFormat f = new SimpleDateFormat("dd MMMM HH:mm:ss");
-        for (ru.steagle.datamodel.Notification n : objects) {
-            message.append(f.format(n.getDate())).append(": ").append(n.getText()).append("\n");
-        }
-        Intent notificationIntent = new Intent(getBaseContext(), NotificationsViewActivity.class); // по клику на уведомлении откроется HomeActivity
-
-        notificationIntent.putExtra(NotificationsViewActivity.MESSAGE, message.toString());
-
-        NotificationCompat.Builder nb = new NotificationCompat.Builder(getBaseContext())
-                .setSmallIcon(R.drawable.ic_launcher) //иконка уведомления
-                .setAutoCancel(true) //уведомление закроется по клику на него
-                .setTicker(getString(R.string.new_notifications)) //текст, который отобразится вверху статус-бара при создании уведомления
-                .setContentText(message.toString()) // Основной текст уведомления
-                .setContentIntent(PendingIntent.getActivity(getBaseContext(), 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT))
-                .setWhen(System.currentTimeMillis()) //отображаемое время уведомления
-                .setContentTitle(getString(R.string.new_notifications)) //заголовок уведомления
-                .setDefaults(def) // звук, вибро и диодный индикатор выставляются по умолчанию
-                .setNumber(objects.size());
-
-        Notification notification = nb.getNotification(); //генерируем уведомление
-        manager.notify(notificationID++, notification); // отображаем его пользователю.
     }
 
     private void mainLoop() {
@@ -267,258 +359,24 @@ public class SteagleService extends Service {
             try {
                 TimeUnit.SECONDS.sleep(1);
                 if (Utils.isNetworkAvailable(this)) {
-                    checkWaitingObjectsToLoad();
-                    long currentTime = new Date().getTime();
-                    if (loadedDictionaries.size() < DICTIONARIES_LIST.size() && currentTime > time2loadDictionaries) {
-                        time2loadDictionaries = currentTime + DICTIONARY_REQUEST_PAUSE_MS;
-                        loadDictionaries();
+                    synchronized (requestDataCommands) {
+                        Iterator<IRequestDataCommand> iterator = requestDataCommands.iterator();
+                        while (iterator.hasNext()) {
+                            IRequestDataCommand requestDataCommand = iterator.next();
+                            if (requestDataCommand.isTerminated()) {
+                                iterator.remove();
+                            } else {
+                                if (requestDataCommand.canRun()) {
+                                    requestDataCommand.run();
+                                }
+                            }
+                        }
                     }
                 }
             } catch (InterruptedException e) {
                 Log.d(TAG, "Exception: " + e.getMessage());
             }
         }
-    }
-
-    private void checkWaitingObjectsToLoad() {
-        synchronized (waitingObjects) {
-            if (waitingObjects.size() == 0)
-                return;
-            long currentTime = new Date().getTime();
-            Iterator<WaitingObject> it = waitingObjects.iterator();
-            while (it.hasNext()) {
-                WaitingObject wo = it.next();
-                if (currentTime > wo.time2load || currentTime > wo.time2stop) {
-                    wo.time2load += 10000;
-                    loadedDictionaries.remove(wo.object);
-                }
-                if (currentTime > wo.time2stop) {
-                    it.remove();
-                }
-
-            }
-        }
-    }
-
-    private void loadDictionaries() {
-        Set<Dictionary> loadingDictionaries = new HashSet<>(DICTIONARIES_LIST);
-        loadingDictionaries.removeAll(loadedDictionaries);
-        for (Dictionary d : loadingDictionaries) {
-            if (loadedDictionaries.contains(d))
-                continue;
-            if (Dictionary.USER_STATUS.equals(d)) {
-                loadUserStatuses();
-            } else if (Dictionary.CURRENCY.equals(d)) {
-                loadCurrencies();
-            } else if (Dictionary.TIME_ZONE.equals(d)) {
-                loadTimeZones();
-            } else if (Dictionary.TARIF.equals(d)) {
-                loadTarifs();
-            } else if (Dictionary.DEV_MODE.equals(d)) {
-                loadDevModes();
-            } else if (Dictionary.DEV_MODE_SRC.equals(d)) {
-                loadDevModeSrcs();
-            } else if (Dictionary.DEVICE.equals(d)) {
-                loadDevices();
-            } else if (Dictionary.SENSOR.equals(d)) {
-                loadSensors();
-            } else if (Dictionary.LEVEL.equals(d)) {
-                loadLevels();
-            } else if (Dictionary.DEVICE_STATUS.equals(d)) {
-                loadDeviceStatuses();
-            } else if (Dictionary.DEVICE_STATE.equals(d)) {
-                loadDeviceStates();
-            } else if (Dictionary.SENSOR_STATUS.equals(d)) {
-                loadSensorStatuses();
-            }
-        }
-    }
-
-    private void loadDeviceStates() {
-        final Dictionary dictionary = Dictionary.DEVICE_STATE;
-        loadObjects(dictionary, new GetDeviceStatesCommand(), new IResultProcessor() {
-            @Override
-            public void process(String result) {
-                DeviceStates objects = new DeviceStates(result);
-                if (objects.isOk()) {
-                    loadedDictionaries.add(dictionary);
-                    dm.setDeviceStates(objects.getList());
-                    notifyObjectChanges(dictionary);
-                }
-            }
-        });
-    }
-
-    private void loadSensorStatuses() {
-        final Dictionary dictionary = Dictionary.SENSOR_STATUS;
-        loadObjects(dictionary, new GetSensorStatusesCommand(), new IResultProcessor() {
-            @Override
-            public void process(String result) {
-                SensorStatuses objects = new SensorStatuses(result);
-                if (objects.isOk()) {
-                    loadedDictionaries.add(dictionary);
-                    dm.setSensorStatuses(objects.getList());
-                    notifyObjectChanges(dictionary);
-                }
-            }
-        });
-    }
-
-    private void loadDeviceStatuses() {
-        final Dictionary dictionary = Dictionary.DEVICE_STATUS;
-        loadObjects(dictionary, new GetDeviceStatusesCommand(), new IResultProcessor() {
-            @Override
-            public void process(String result) {
-                DeviceStatuses objects = new DeviceStatuses(result);
-                if (objects.isOk()) {
-                    loadedDictionaries.add(dictionary);
-                    dm.setDeviceStatuses(objects.getList());
-                    notifyObjectChanges(dictionary);
-                }
-            }
-        });
-    }
-
-    private void loadLevels() {
-        final Dictionary dictionary = Dictionary.LEVEL;
-        loadObjects(dictionary, new GetLevelsCommand(), new IResultProcessor() {
-            @Override
-            public void process(String result) {
-                Levels objects = new Levels(result);
-                if (objects.isOk()) {
-                    loadedDictionaries.add(dictionary);
-                    dm.setLevels(objects.getList());
-                    notifyObjectChanges(dictionary);
-                }
-            }
-        });
-    }
-
-    private void loadSensors() {
-        if (dm.getDevices() == null || dm.getDevices().size() == 0)
-            return;
-        final Dictionary dictionary = Dictionary.SENSOR;
-        List<Command> commandList = new ArrayList<>();
-        for (Device d : dm.getDevices())
-            commandList.add(new GetSensorsCommand(getBaseContext(), d.getId()));
-        loadObjects(dictionary, commandList, new IResultProcessor() {
-            @Override
-            public void process(String result) {
-                Sensors objects = new Sensors(result);
-                if (objects.isOk()) {
-                    loadedDictionaries.add(dictionary);
-                    dm.setSensors(objects.getList());
-                    notifyObjectChanges(dictionary);
-                    notifyObjectChanges(Dictionary.DEVICE);
-                }
-            }
-        });
-
-    }
-
-    private void loadDevices() {
-        final Dictionary dictionary = Dictionary.DEVICE;
-        loadObjects(dictionary, new GetDevicesCommand(getBaseContext()), new IResultProcessor() {
-            @Override
-            public void process(String result) {
-                Devices objects = new Devices(result);
-                if (objects.isOk()) {
-                    loadedDictionaries.add(dictionary);
-                    dm.setDevices(objects.getList());
-                    notifyObjectChanges(dictionary);
-                }
-            }
-        });
-    }
-
-    private void loadDevModeSrcs() {
-        final Dictionary dictionary = Dictionary.DEV_MODE_SRC;
-        loadObjects(dictionary, new GetDevModeSrcsCommand(), new IResultProcessor() {
-            @Override
-            public void process(String result) {
-                DevModeSrcs objects = new DevModeSrcs(result);
-                if (objects.isOk()) {
-                    loadedDictionaries.add(dictionary);
-                    dm.setDevModeSrcs(objects.getList());
-                    notifyObjectChanges(dictionary);
-                }
-            }
-        });
-    }
-
-    private void loadDevModes() {
-        final Dictionary dictionary = Dictionary.DEV_MODE;
-        loadObjects(dictionary, new GetDevModesCommand(), new IResultProcessor() {
-            @Override
-            public void process(String result) {
-                DevModes objects = new DevModes(result);
-                if (objects.isOk()) {
-                    loadedDictionaries.add(dictionary);
-                    dm.setDevModes(objects.getList());
-                    notifyObjectChanges(dictionary);
-                }
-            }
-        });
-    }
-
-    private void loadTarifs() {
-        final Dictionary dictionary = Dictionary.TARIF;
-        loadObjects(dictionary, new GetTarifsCommand(), new IResultProcessor() {
-            @Override
-            public void process(String result) {
-                Tarifs objects = new Tarifs(result);
-                if (objects.isOk()) {
-                    loadedDictionaries.add(dictionary);
-                    dm.setTarifs(objects.getList());
-                    notifyObjectChanges(dictionary);
-                }
-            }
-        });
-    }
-
-    private void loadTimeZones() {
-        final Dictionary dictionary = Dictionary.TIME_ZONE;
-        loadObjects(dictionary, new GetTimeZonesCommand(), new IResultProcessor() {
-            @Override
-            public void process(String result) {
-                TimeZones objects = new TimeZones(result);
-                if (objects.isOk()) {
-                    loadedDictionaries.add(dictionary);
-                    dm.setTimeZones(objects.getList());
-                    notifyObjectChanges(dictionary);
-                }
-            }
-        });
-    }
-
-    private void loadCurrencies() {
-        final Dictionary dictionary = Dictionary.CURRENCY;
-        loadObjects(dictionary, new GetCurrenciesCommand(), new IResultProcessor() {
-            @Override
-            public void process(String result) {
-                Currencies objects = new Currencies(result);
-                if (objects.isOk()) {
-                    loadedDictionaries.add(dictionary);
-                    dm.setCurrencies(objects.getList());
-                    notifyObjectChanges(dictionary);
-                }
-            }
-        });
-    }
-
-    private void loadUserStatuses() {
-        final Dictionary dictionary = Dictionary.USER_STATUS;
-        loadObjects(dictionary, new GetUserStatusesCommand(), new IResultProcessor() {
-            @Override
-            public void process(String result) {
-                UserStatuses objects = new UserStatuses(result);
-                if (objects.isOk()) {
-                    loadedDictionaries.add(dictionary);
-                    dm.setUserStatuses(objects.getList());
-                    notifyObjectChanges(dictionary);
-                }
-            }
-        });
     }
 
     private interface IResultProcessor {
@@ -540,26 +398,11 @@ public class SteagleService extends Service {
     }
 
     private void doRequest(final Dictionary dictionary, Request request, final IResultProcessor resultProcessor) {
-        if (loadingDictionaries.contains(dictionary))
-            return;
         Log.d(TAG, "get " + dictionary + " list request: " + request);
-        loadingDictionaries.add(dictionary);
-        RequestTask requestTask = new RequestTask(Config.getRegServer(this)) {
-            @Override
-            public void onPostExecute(String result) {
-                loadingDictionaries.remove(dictionary);
-                Log.d(TAG, "get " + dictionary + " list response: " + result);
-
-                resultProcessor.process(result);
-            }
-
-            @Override
-            protected void onCancelled() {
-                loadingDictionaries.remove(dictionary);
-            }
-
-        };
-        requestTask.execute(request.serialize());
+        ServiceTask requestTask = new ServiceTask(Config.getRegServer(this));
+        String result = requestTask.execute(request.serialize());
+        Log.d(TAG, "get " + dictionary + " list response: " + result);
+        resultProcessor.process(result);
     }
 
     private void notifyObjectChanges(Dictionary dictionary) {
@@ -571,8 +414,8 @@ public class SteagleService extends Service {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         Log.d(TAG, "Service Destroyed");
+        super.onDestroy();
     }
 
     public class LocalBinder extends Binder {
@@ -589,16 +432,108 @@ public class SteagleService extends Service {
             SteagleService.this.setDeviceName(deviceId, deviceName);
         }
 
-        public void waitForDeviceMode(String deviceId, String modeId) {
-            SteagleService.this.waitForDeviceMode(deviceId, modeId);
+        public void waitForDeviceStatus(String deviceId, String statusId) {
+            SteagleService.this.waitForDeviceStatus(deviceId, statusId);
+        }
+
+        public void setSensorName(String sensorId, String sensorName) {
+            SteagleService.this.setSensorName(sensorId, sensorName);
+        }
+
+        public void waitForSensorStatus(String deviceId, String sensorId, String statusId) {
+            SteagleService.this.waitForSensorMode(deviceId, sensorId, statusId);
+        }
+
+        public void deleteSensor(String sensorId) {
+            SteagleService.this.deleteSensor(sensorId);
+        }
+
+        public void waitForSensorAdded() {
+            SteagleService.this.waitForSensorAdded();
+        }
+
+        public void setTimeZoneId(String timeZone) {
+            dm.setTimeZoneId(timeZone);
+            notifyObjectChanges(Dictionary.TIME_ZONE);
+        }
+
+        public void activateDeviceRequests() {
+            SteagleService.this.activateDeviceRequests();
+        }
+
+        public void deactivateDeviceRequests() {
+            SteagleService.this.deactivateDeviceRequests();
+        }
+
+        public int createHistoryRequest(Date startDate, Date endDate, String level) {
+            return SteagleService.this.createHistoryRequest(startDate, endDate, level);
+
+        }
+
+        public List<Event> getHistoryEvents() {
+            return SteagleService.this.getHistoryEvents();
         }
     }
 
-    private void waitForDeviceMode(String deviceId, String modeId) {
-        dm.clearDeviceStatus(deviceId);
+    private List<Event> getHistoryEvents() {
+        return dm.getHistoryEvents();
+    }
+
+    private int createHistoryRequest(Date startDate, Date endDate, String level) {
+        int counter = dm.incHistoryRequestId();
+        synchronized (requestDataCommands) {
+            requestDataCommands.add(new HistoryRequestCommand(this, dm, broadcastSender, startDate, endDate, level, counter));
+        }
+        return counter;
+    }
+
+    private void activateDeviceRequests() {
+        setDeviceRequests(true);
+    }
+
+    private void deactivateDeviceRequests() {
+        setDeviceRequests(false);
+    }
+
+    private void setDeviceRequests(boolean isActive) {
+        synchronized (requestDataCommands) {
+            for (IRequestDataCommand cmd : requestDataCommands) {
+                if (cmd instanceof InfiniteDeviceRequestCommand) {
+                    InfiniteDeviceRequestCommand d = (InfiniteDeviceRequestCommand) cmd;
+                    d.setActive(isActive);
+                }
+            }
+        }
+    }
+
+    private void waitForSensorAdded() {
+        synchronized (requestDataCommands) {
+            requestDataCommands.add(new SensorAddedRequestCommand(this, dm, broadcastSender));
+        }
+    }
+
+    private void deleteSensor(String sensorId) {
+        dm.deleteSensor(sensorId);
+        notifyObjectChanges(Dictionary.SENSOR);
         notifyObjectChanges(Dictionary.DEVICE);
-        // TODO Выполнить минутный запрос за статусом устройства
-        waitingObjects.add(new WaitingObject(Dictionary.DEVICE, new Date().getTime() + 60000));
+    }
+
+    private void waitForSensorMode(String deviceId, String sensorId, String statusId) {
+        synchronized (requestDataCommands) {
+            requestDataCommands.add(new SensorRequestCommand(this, dm, broadcastSender, deviceId, sensorId, statusId));
+        }
+    }
+
+    private void setSensorName(String sensorId, String sensorName) {
+        dm.setSensorName(sensorId, sensorName);
+        notifyObjectChanges(Dictionary.SENSOR);
+    }
+
+    private void waitForDeviceStatus(String deviceId, String statusId) {
+        synchronized (requestDataCommands) {
+
+            requestDataCommands.add(new DeviceRequestCommand(this, dm, broadcastSender, deviceId, statusId));
+        }
     }
 
     private void setDeviceName(String deviceId, String deviceName) {
@@ -609,9 +544,16 @@ public class SteagleService extends Service {
     private void clearUserData() {
         dm.setDevices(new ArrayList<Device>());
         dm.setSensors(new ArrayList<Sensor>());
-        loadedDictionaries.remove(Dictionary.SENSOR);
-        loadedDictionaries.remove(Dictionary.DEVICE);
-        time2loadDictionaries = 0;
+        synchronized (requestDataCommands) {
+            for (IRequestDataCommand cmd : requestDataCommands) {
+                if (cmd instanceof DictionaryRequestCommand) {
+                    DictionaryRequestCommand d = (DictionaryRequestCommand) cmd;
+                    if (d.dictionary.equals(Dictionary.DEVICE) || d.dictionary.equals(Dictionary.SENSOR)) {
+                        d.reset(true);
+                    }
+                }
+            }
+        }
     }
 
 }

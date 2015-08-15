@@ -2,27 +2,47 @@ package ru.steagle.views;
 
 import android.app.FragmentTransaction;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import ru.steagle.R;
 import ru.steagle.SteagleApplication;
+import ru.steagle.config.Config;
+import ru.steagle.config.Keys;
+import ru.steagle.utils.Utils;
 
 public class MainActivity extends ActionBarActivity
         implements MenuFragment.Listener, AccountFragment.Listener {
 
+    private MenuFragment menuFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((SteagleApplication)getApplication()).bindSteagleService();
+        ((SteagleApplication) getApplication()).bindSteagleService();
         setContentView(R.layout.activity_main);
-        MenuFragment menuFragment = new MenuFragment();
 
+        menuFragment = new MenuFragment();
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.menuContainer, menuFragment);
         transaction.commit();
+        if (Config.isWifiOnly(this)&& Utils.detect3G(this)) {
+            Utils.showConfirmDialog(this, getString(R.string.actung), getString(R.string.mobile_is_off),
+                    getString(R.string.btnTurnOn), getString(R.string.btnCancel), new Runnable() {
+                @Override
+                public void run() {
+                    SharedPreferences prefs = PreferenceManager
+                            .getDefaultSharedPreferences(MainActivity.this);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putBoolean(Keys.USE_MOBILE_INET.getPrefKey(), true);
+                    editor.apply();
+                }
+            });
+        }
 
     }
 
@@ -30,6 +50,18 @@ public class MainActivity extends ActionBarActivity
     protected void onDestroy() {
         ((SteagleApplication) getApplication()).unBindSteagleService();
         super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!menuFragment.goHome()) {
+            Utils.showConfirmDialog(this, null, getString(R.string.confirmExit), getString(R.string.btnYes), getString(R.string.btnCancel), new Runnable() {
+                @Override
+                public void run() {
+                    MainActivity.super.onBackPressed();
+                }
+            });
+        }
     }
 
     @Override

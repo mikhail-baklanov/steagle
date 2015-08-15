@@ -1,33 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="40dp">
+    android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/sensorName"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="@string/foo"
-        android:layout_centerVertical="true"
-        />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <ImageView
-        android:id="@+id/sensorSwitch"
-        android:layout_height="wrap_content"
-        android:layout_width="60dp"
-        android:src="@drawable/switcher_off"
-        android:layout_alignParentRight="true"
-        android:padding="2dp"
-        android:layout_centerVertical="true"
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:paddingLeft="10dp"
+            android:layout_gravity="center_vertical"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:orientation="vertical">
 
-        />
+            <TextView
+                android:id="@+id/sensorName"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:text="@string/foo"
+                android:padding="0dp" />
+
+            <TextView
+                android:id="@+id/sensorType"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:text="@string/foo"
+                android:textSize="12sp"
+                android:textColor="#999"
+                android:padding="0dp" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/sensorSwitch"
+            android:layout_height="50dp"
+            android:layout_width="60dp"
+            android:src="@drawable/switcher_off"
+            android:layout_gravity="center_vertical"
+            android:padding="2dp" />
+
+    </LinearLayout>
+
     <!-- разделитель -->
     <LinearLayout
+        android:id="@+id/delimiter"
         android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="1px"
-        android:background="#888888"
-        android:layout_alignParentBottom="true"/>
-</RelativeLayout>
+        android:background="#888888" />
+
+</LinearLayout>
+

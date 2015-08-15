@@ -19,11 +19,13 @@ public class GetEventsCommand extends AccountCommand {
 
     private Date b;
     private Date e;
+    private String level;
 
-    public GetEventsCommand(Context context, Date b, Date e) {
+    public GetEventsCommand(Context context, Date b, Date e, String level) {
         super(context);
         this.b = b;
         this.e = e;
+        this.level = level;
     }
 
     @Override
@@ -33,20 +35,25 @@ public class GetEventsCommand extends AccountCommand {
 
     @Override
     protected String getCommandName() {
-        return "fetch";
+        return "fetch1";
     }
 
     @Override
     protected void serializePrivateAttributes(XmlSerializer serializer) throws IOException {
         super.serializePrivateAttributes(serializer);
-        if (b != null && e != null) {
+        if (b != null) {
             Calendar c = GregorianCalendar.getInstance();
             c.setTime(b);
             serializer.attribute("", "date_b", ISO8601.format(c));
-            c = GregorianCalendar.getInstance();
+        }
+        if (e != null) {
+            Calendar c = GregorianCalendar.getInstance();
             c.setTime(e);
             serializer.attribute("", "date_e", ISO8601.format(c));
         }
-        serializer.attribute("", "limit", Config.getHistoryLimit(context));
+        if (level != null) {
+            serializer.attribute("", "level", level);
+        }
+        serializer.attribute("", "limit", "100");
     }
 }

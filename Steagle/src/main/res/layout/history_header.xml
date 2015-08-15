@@ -4,9 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@color/listHeaderBackground"
     >
-
 
     <TextView
         android:id="@+id/header"
@@ -15,9 +13,10 @@
         android:text="@string/foo"
         android:textColor="@color/listHeaderTextColor"
         android:textSize="@dimen/listHeaderTextSize"
-        android:layout_marginLeft="10dp"
+        android:paddingLeft="10dp"
         android:paddingTop="@dimen/listHeaderPaddingTopBottom"
         android:paddingBottom="@dimen/listHeaderPaddingTopBottom"
+        android:background="@color/listHeaderBackground"
         />
     <!-- разделитель -->
     <LinearLayout
@@ -25,4 +24,7 @@
         android:layout_width="fill_parent"
         android:layout_height="1px"
         android:background="#888888" />
+
+    <include layout="@layout/history_row" />
+
 </LinearLayout>

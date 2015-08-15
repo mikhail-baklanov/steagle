@@ -3,8 +3,11 @@ package ru.steagle.datamodel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by bmw on 10.02.14.
@@ -16,22 +19,25 @@ public class DataModel {
     private List<TimeZone> timeZones = new ArrayList<>();
     private List<Device> devices = new ArrayList<>();
     private List<Sensor> sensors = new ArrayList<>();
-    private Map<String, UserStatus> userStatusesMap = new HashMap<>();
-    private Map<String, Currency> currenciesMap = new HashMap<>();
-    private Map<String, Level> levelsMap = new HashMap<>();
-    private Map<String, TimeZone> timeZonesMap = new HashMap<>();
-    private Map<String, DevModeSrc> deviceModeSourcesMap = new HashMap<>();
-    private Map<String, DeviceMode> deviceModesMap = new HashMap<>();
-    private Map<String, DeviceMode> deviceModesByKeyMap = new HashMap<>();
-    private Map<String, Device> devicesMap = new HashMap<>();
-    private Map<String, DeviceStatus> deviceStatusesMap = new HashMap<>();
-    private Map<String, DeviceStatus> deviceStatusesByKeyMap = new HashMap<>();
-    private Map<String, DeviceState> deviceStatesMap = new HashMap<>();
-    private Map<String, DeviceState> deviceStatesByKeyMap = new HashMap<>();
-    private Map<String, SensorStatus> sensorStatusesMap = new HashMap<>();
-    private Map<String, SensorStatus> sensorStatusesByKeyMap = new HashMap<>();
-    private Map<String, Sensor> sensorsMap = new HashMap<>();
-    private Map<String, Tarif> tarifsMap = new HashMap<>();
+    private List<SensorType> sensorTypesList = new ArrayList<>();
+    private List<Event> historyEvents;
+    private Map<String, UserStatus> userStatusesMap = new ConcurrentHashMap<>();
+    private Map<String, Currency> currenciesMap = new ConcurrentHashMap<>();
+    private Map<String, Level> levelsMap = new ConcurrentHashMap<>();
+    private Map<String, TimeZone> timeZonesMap = new ConcurrentHashMap<>();
+    private Map<String, DevModeSrc> deviceModeSourcesMap = new ConcurrentHashMap<>();
+    private Map<String, DeviceMode> deviceModesMap = new ConcurrentHashMap<>();
+    private Map<String, DeviceMode> deviceModesByKeyMap = new ConcurrentHashMap<>();
+    private Map<String, Device> devicesMap = new ConcurrentHashMap<>();
+    private Map<String, DeviceStatus> deviceStatusesMap = new ConcurrentHashMap<>();
+    private Map<String, DeviceStatus> deviceStatusesByKeyMap = new ConcurrentHashMap<>();
+    private Map<String, DeviceState> deviceStatesMap = new ConcurrentHashMap<>();
+    private Map<String, DeviceState> deviceStatesByKeyMap = new ConcurrentHashMap<>();
+    private Map<String, SensorStatus> sensorStatusesMap = new ConcurrentHashMap<>();
+    private Map<String, SensorType> sensorTypesMap = new ConcurrentHashMap<>();
+    private Map<String, SensorStatus> sensorStatusesByKeyMap = new ConcurrentHashMap<>();
+    private Map<String, Sensor> sensorsMap = new ConcurrentHashMap<>();
+    private Map<String, Tarif> tarifsMap = new ConcurrentHashMap<>();
 
     private String userName;
     private String email;
@@ -44,6 +50,11 @@ public class DataModel {
     private String account;
     private boolean phoneNotifyEnabled;
     private boolean smsNotifyEnabled;
+    private AtomicInteger historyRequestCounter = new AtomicInteger(0);
+
+    public List<SensorType> getSensorTypesList() {
+        return sensorTypesList;
+    }
 
     public List<Device> getDevices() {
         return devices;
@@ -192,6 +203,8 @@ public class DataModel {
     }
 
     public String getUserStatus() {
+        if (userStatusId == null)
+            return null;
         UserStatus elem = userStatusesMap.get(userStatusId);
         if (elem == null)
             return null;
@@ -204,6 +217,8 @@ public class DataModel {
     }
 
     public TimeZone getTimeZone() {
+        if (timeZoneId == null)
+            return null;
         return timeZonesMap.get(timeZoneId);
     }
 
@@ -232,6 +247,8 @@ public class DataModel {
     }
 
     public String getCurrency() {
+        if (currencyId == null)
+            return null;
         Currency elem = currenciesMap.get(currencyId);
         if (elem == null)
             return null;
@@ -280,15 +297,21 @@ public class DataModel {
     }
 
     public Tarif getTarif() {
+        if (tarifId == null)
+            return null;
         return tarifsMap.get(tarifId);
     }
 
     public String getDevModeSrcDescription(String devModeSrcId) {
+        if (devModeSrcId == null)
+            return null;
         DevModeSrc d = deviceModeSourcesMap.get(devModeSrcId);
         return d == null ? null : d.getDescription();
     }
 
     public String getDevModeDescription(String devModeId) {
+        if (devModeId == null)
+            return null;
         DeviceMode d = deviceModesMap.get(devModeId);
         return d == null ? null : d.getDescription();
     }
@@ -310,7 +333,9 @@ public class DataModel {
         String allowSensorStatusId = getAllowSensorStatusId();
         String suspendSensorStatusId = getSuspendSensorStatusId();
         for (Sensor elem : sensorsMap.values()) {
-            Device device = devicesMap.get(elem.getDevId());
+            Device device = null;
+            if (elem.getDevId() != null)
+                device = devicesMap.get(elem.getDevId());
             if (device != null) {
                 if (allowSensorStatusId != null && allowSensorStatusId.equals(elem.getStatusId())) {
                     device.setSensorOnCounter(device.getSensorOnCounter() + 1);
@@ -322,6 +347,8 @@ public class DataModel {
     }
 
     public String getSensorDescription(String sensorId) {
+        if (sensorId == null)
+            return null;
         Sensor s = sensorsMap.get(sensorId);
         return s == null ? null : s.getDescription();
     }
@@ -345,6 +372,8 @@ public class DataModel {
     }
 
     public DeviceStatus getDeviceStatus(String deviceStatusId) {
+        if (deviceStatusId == null)
+            return null;
         return deviceStatusesMap.get(deviceStatusId);
     }
 
@@ -369,26 +398,40 @@ public class DataModel {
     }
 
     public String getAllowDeviceModeId() {
-        DeviceMode s = deviceModesByKeyMap.get("NORMAL"); // нормальный
-        return s == null ? null : s.getId();
-    }
-
-    public String getSuspendDeviceModeId() {
         DeviceMode s = deviceModesByKeyMap.get("ALARM_S1"); // постановка на охрану
         return s == null ? null : s.getId();
     }
 
+    public String getSuspendDeviceModeId() {
+        DeviceMode s = deviceModesByKeyMap.get("NORMAL"); // нормальный
+        return s == null ? null : s.getId();
+    }
+
+    public boolean getOnlineDeviceLModeId(String modeId) {
+        if (modeId == null)
+            return false;
+        DeviceMode s;
+        s = deviceModesByKeyMap.get("ALARM_S1"); // постановка на охрану
+        if (s != null && modeId.equals(s.getId()))
+            return true;
+        s = deviceModesByKeyMap.get("ALARM_S2"); // охрана
+        if (s != null && modeId.equals(s.getId()))
+            return true;
+        s = deviceModesByKeyMap.get("ALARM_S3"); // предснятие
+        if (s != null && modeId.equals(s.getId()))
+            return true;
+        s = deviceModesByKeyMap.get("ALARM_S4"); // опасность
+        if (s != null && modeId.equals(s.getId()))
+            return true;
+        return false;
+    }
+
     public void setDeviceName(String deviceId, String deviceName) {
+        if (deviceId == null)
+            return;
         Device device = devicesMap.get(deviceId);
         if (device != null)
             device.setDescription(deviceName);
-    }
-
-    public void clearDeviceStatus(String deviceId) {
-        Device device = devicesMap.get(deviceId);
-        if (device != null) {
-            device.setStatusId(null);
-        }
     }
 
     public List<Sensor> getSensorsOfDevice(String deviceId) {
@@ -417,5 +460,56 @@ public class DataModel {
     public String getOfflineDeviceStateId() {
         DeviceState s = deviceStatesByKeyMap.get("offline"); // не в сети
         return s == null ? null : s.getId();
+    }
+
+    public void setSensorName(String sensorId, String sensorName) {
+        if (sensorId == null)
+            return;
+        Sensor sensor = sensorsMap.get(sensorId);
+        if (sensor != null)
+            sensor.setDescription(sensorName);
+    }
+
+    public void deleteSensor(String sensorId) {
+        if (sensorId == null)
+            return;
+        Iterator<Sensor> iterator = sensors.iterator();
+        while (iterator.hasNext()) {
+            Sensor sensor = iterator.next();
+            if (sensorId.equals(sensor.getId()))
+                iterator.remove();
+        }
+        sensorsMap.remove(sensorId);
+    }
+
+    public void setSensorTypes(List<SensorType> list) {
+        sensorTypesList = list;
+        sensorTypesMap.clear();
+        for (SensorType elem : list) {
+            sensorTypesMap.put(elem.getId(), elem);
+        }
+
+    }
+
+    public SensorType getSensorType(String typeId) {
+        if (typeId == null)
+            return null;
+        return sensorTypesMap.get(typeId);
+    }
+
+    public List<Event> getHistoryEvents() {
+        return historyEvents;
+    }
+
+    public int incHistoryRequestId() {
+        return historyRequestCounter.incrementAndGet();
+    }
+
+    public void setHistoryEvents(List<Event> list) {
+        this.historyEvents = list;
+    }
+
+    public int getHistoryRequestId() {
+        return historyRequestCounter.get();
     }
 }

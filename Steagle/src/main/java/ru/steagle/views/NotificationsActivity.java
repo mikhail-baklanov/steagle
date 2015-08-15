@@ -1,7 +1,6 @@
 package ru.steagle.views;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -9,21 +8,20 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import ru.steagle.R;
 import ru.steagle.config.Config;
 import ru.steagle.datamodel.DataModel;
-import ru.steagle.R;
-import ru.steagle.service.SteagleServiceConnector;
-import ru.steagle.utils.Utils;
+import ru.steagle.datamodel.UserInfo;
 import ru.steagle.protocol.Request;
 import ru.steagle.protocol.RequestTask;
 import ru.steagle.protocol.request.ChangeNotifyFlagCommand;
-import ru.steagle.datamodel.UserInfo;
+import ru.steagle.service.SteagleServiceConnector;
+import ru.steagle.utils.Utils;
 
 /**
  * Created by bmw on 09.02.14.
@@ -76,29 +74,29 @@ public class NotificationsActivity extends Activity {
         super.onDestroy();
     }
 
-	private void startNotificationsEditActivity() {
-		Intent intent = new Intent(this, NotificationsEditActivity.class);
-		startActivity(intent);
-		finish();
-	}
+    private void startNotificationsEditActivity() {
+        Intent intent = new Intent(this, NotificationsEditActivity.class);
+        startActivity(intent);
+        finish();
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_notifications);
 
-        ((TextView)findViewById(R.id.title)).setText(getString(R.string.notifications));
-        ((TextView)findViewById(R.id.operation_text)).setText(getString(R.string.btnEdit));
+        ((TextView) findViewById(R.id.title)).setText(getString(R.string.notifications));
+        ((TextView) findViewById(R.id.operation_text)).setText(getString(R.string.btnEdit));
         findViewById(R.id.operation).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-				startNotificationsEditActivity();
+                startNotificationsEditActivity();
             }
         });
 
-        phoneSwitch = (ImageView)findViewById(R.id.phoneSwitch);
-        smsSwitch = (ImageView)findViewById(R.id.smsSwitch);
-        emailSwitch = (ImageView)findViewById(R.id.emailSwitch);
+        phoneSwitch = (ImageView) findViewById(R.id.phoneSwitch);
+        smsSwitch = (ImageView) findViewById(R.id.smsSwitch);
+        emailSwitch = (ImageView) findViewById(R.id.emailSwitch);
 
         phoneSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,16 +146,18 @@ public class NotificationsActivity extends Activity {
 
                 UserInfo userInfo = new UserInfo(result);
                 if (userInfo.isOk()) {
-                    switch (flag) {
-                        case ChangeNotifyFlagCommand.PHONE:
-                            dm.setPhoneNotifyEnabled(enable);
-                            break;
-                        case ChangeNotifyFlagCommand.SMS:
-                            dm.setSmsNotifyEnabled(enable);
-                            break;
-                        case ChangeNotifyFlagCommand.EMAIL:
-                            dm.setEmailNotifyEnabled(enable);
-                            break;
+                    if (flag != null) {
+                        switch (flag) {
+                            case ChangeNotifyFlagCommand.PHONE:
+                                dm.setPhoneNotifyEnabled(enable);
+                                break;
+                            case ChangeNotifyFlagCommand.SMS:
+                                dm.setSmsNotifyEnabled(enable);
+                                break;
+                            case ChangeNotifyFlagCommand.EMAIL:
+                                dm.setEmailNotifyEnabled(enable);
+                                break;
+                        }
                     }
                     refreshNotifySwitches();
                 } else {

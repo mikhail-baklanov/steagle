@@ -3,7 +3,7 @@
 
     <string name="app_name">Steagle</string>
     <string name="foo">Foo</string>
-    <string name="service_connection_error">Ошибка доступа к сервису</string>
+    <string name="service_connection_error">Ошибка доступа к сервису.</string>
     <string name="network_error">Сеть недоступна. Проверьте настройки сети.</string>
     <string name="btnYes">Да</string>
     <string name="period_start">Начальная дата:</string>
@@ -38,27 +38,27 @@
     <string name="new_notifications">Уведомления от устройств</string>
     <string name="sensors">Датчики</string>
 
-    <string-array name="auto_load_values">
+    <string-array name="auto_login_values">
         <item>yes</item>
         <item>never</item>
         <item>ask</item>
     </string-array>
-    <string-array name="auto_load_entries">
+    <string-array name="auto_login_entries">
         <item>автоматический вход</item>
         <item>не сохранять пароль</item>
         <item>сохранить пароль</item>
     </string-array>
     <string-array name="history_limit_values">
         <item>10</item>
-        <item>50</item>
         <item>100</item>
         <item>1000</item>
+        <item>1000000</item>
     </string-array>
     <string-array name="history_limit_entries">
         <item>10</item>
-        <item>50</item>
         <item>100</item>
         <item>1000</item>
+        <item>без ограничений</item>
     </string-array>
 
     <string name="title_activity_notifications_view">Уведомления</string>
@@ -72,10 +72,10 @@
     <string name="new_password_repeat">Новый пароль еще раз</string>
     <string name="btnChange">Изменить</string>
     <string name="error_repeat_password">Пароли отличаются</string>
-    <string name="master_password_change_success">Запрос на изменение мастер-пароля устройства отправлен</string>
-    <string name="device_status_is_unstable">Устройство находится в режиме переключения состояния. Повторите попытку позже</string>
+    <string name="master_password_change_success">Запрос на изменение мастер-пароля устройства отправлен.</string>
+    <string name="device_status_is_unstable">Устройство находится в режиме переключения состояния. Повторите попытку позже.</string>
     <string name="turn_off_guard">Снятие с охраны</string>
-    <string name="confirm_turn_off_guard">Вы подтверждает снятие устройства с охраны? В этом случае Ваш объект станет незащищенным</string>
+    <string name="confirm_turn_off_guard">Вы подтверждает снятие устройства с охраны? В этом случае Ваш объект станет незащищенным.</string>
     <string name="turn_on_guard">Постановка на охрану</string>
     <string name="confirm_turn_on_guard">Вы подтверждаете постановку устройства на охрану?</string>
     <string name="unstable_device_list">В режиме переключения</string>
@@ -85,9 +85,35 @@
     <string name="getting_sensor_list">Получение списка датчиков...</string>
     <string name="turnOnSensorsHeader">Активные датчики</string>
     <string name="turnOffSensorsHeader">Отключенные датчики</string>
-    <string name="sensor_status_is_unstable">Датчик находится в режиме переключения состояния. Повторите попытку позже</string>
-    <string name="request_sent_to_device">Запрос передан на устройство</string>
+    <string name="sensor_status_is_unstable">Датчик находится в режиме переключения состояния. Повторите попытку позже.</string>
+    <string name="request_sent_to_device">Запрос передан на устройство. Ожидайте обновления состояния.</string>
     <string name="no_name_sensor"><![CDATA[<без имени>]]></string>
     <string name="btnAdd">Добавить</string>
+    <string name="sensor_deletion">Удаление сенсора</string>
+    <string name="confirm_sensor_deletion">Вы действительно желаете отключить датчик?</string>
+    <string name="labelSensor">Новое название датчика</string>
+    <string name="sensor_statuses_not_loaded">Не загружен справочник статусов датчиков. Повторите запрос немного позже.</string>
+    <string name="delete_sensor_request_sent">Запрос на удаление передан на устройство. Ожидайте обновления состояния.</string>
+    <string name="action_delete">Удалить</string>
+    <string name="device_statuses_not_loaded">Справочник статусов устройств не загружен. Выполните запрос немного позже.</string>
+    <string name="sensor_adding">Добавление датчика</string>
+    <string name="choose_sensor_type">Выберите тип датчика:</string>
+    <string name="sensor_bad_name1">не используется</string>
+    <string name="empty_sensor_type_list">Список датчиков пуст</string>
+    <string name="should_choose_sensor_type">Выберите тип датчика</string>
+    <string name="sensor_added">Запрос на добавление передан на устройство. Активируйте последовательно 3 раза датчик.</string>
+    <string name="confirmExit">Завершить работу?</string>
+    <string name="levels_not_loaded">Справочник типов событий не загружен. Повторите попытку позже.</string>
+    <string name="warning">Предупреждение</string>
+    <string name="beforeChangePasswordMessage">Перед изменением мастер-пароля нажмите кнопку \"Настройка\" на устройстве</string>
+    <string name="actung">Внимание</string>
+    <string name="mobile_is_off">Передача данных через мобильную сеть отключена</string>
+    <string name="btnTurnOn">Включить</string>
+    <string name="empty_events_list"></string>
+    <string name="errors">Произошла ошибка</string>
+    <string name="version">Версия 0.9 build 0322</string>
+    <string name="about">О программе</string>
+    <string name="loading">Загрузка...</string>
+    <string name="not_enought_memory">Недостаточно памяти для дальнейшей загрузки данных</string>
 
 </resources>

@@ -1,7 +1,5 @@
 package ru.steagle.protocol.request;
 
-import android.content.Context;
-
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.IOException;

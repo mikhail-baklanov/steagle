@@ -1,6 +1,5 @@
 package ru.steagle.protocol.responce;
 
-import ru.steagle.datamodel.SimpleDictionary;
 import ru.steagle.datamodel.UserStatus;
 
 /**

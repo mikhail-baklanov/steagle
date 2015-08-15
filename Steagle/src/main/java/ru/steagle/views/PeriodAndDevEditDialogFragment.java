@@ -25,12 +25,12 @@ import java.util.EnumSet;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import ru.steagle.datamodel.DataModel;
 import ru.steagle.R;
-import ru.steagle.service.SteagleServiceConnector;
-import ru.steagle.utils.Utils;
+import ru.steagle.datamodel.DataModel;
 import ru.steagle.datamodel.Device;
 import ru.steagle.service.SteagleService;
+import ru.steagle.service.SteagleServiceConnector;
+import ru.steagle.utils.Utils;
 
 import static ru.steagle.service.SteagleService.Dictionary.DEVICE;
 
@@ -175,8 +175,9 @@ public class PeriodAndDevEditDialogFragment extends DialogFragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spiDevList.setAdapter(adapter);
         spiDevList.setPrompt(getString(R.string.chooseDevice));
-        if (position >= 0)
+        if (position >= 0){
             spiDevList.setSelection(position);
+        }
         spiDevList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view,

@@ -1,7 +1,6 @@
 package ru.steagle.views;
 
 import android.app.ListActivity;
-import android.app.ListFragment;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -9,9 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -21,17 +18,18 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
+import ru.steagle.R;
 import ru.steagle.config.Config;
 import ru.steagle.datamodel.DataModel;
-import ru.steagle.R;
-import ru.steagle.service.SteagleServiceConnector;
-import ru.steagle.utils.Utils;
+import ru.steagle.datamodel.TimeZone;
+import ru.steagle.datamodel.UserInfo;
 import ru.steagle.protocol.Request;
 import ru.steagle.protocol.RequestTask;
 import ru.steagle.protocol.request.ChangeTimeZoneCommand;
-import ru.steagle.datamodel.TimeZone;
-import ru.steagle.datamodel.UserInfo;
 import ru.steagle.service.SteagleService;
+import ru.steagle.service.SteagleServiceConnector;
+import ru.steagle.utils.Utils;
+
 import static ru.steagle.service.SteagleService.Dictionary.TIME_ZONE;
 
 /**
@@ -49,12 +47,11 @@ public class TimeZoneActivity extends ListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_time_zones);
 
-        ((TextView)findViewById(R.id.title)).setText(getString(R.string.timeZones));
+        ((TextView) findViewById(R.id.title)).setText(getString(R.string.timeZones));
 
         serviceConnector.bind(this, new Runnable() {
             @Override
             public void run() {
-                DataModel dm = serviceConnector.getServiceBinder().getDataModel();
                 updateData();
             }
         });
@@ -66,7 +63,6 @@ public class TimeZoneActivity extends ListActivity {
                 }
             }
         };
-        getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         registerReceiver(broadcastReceiver, new IntentFilter(SteagleService.BROADCAST_ACTION));
     }
 
@@ -95,10 +91,12 @@ public class TimeZoneActivity extends ListActivity {
             }
         }
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1, data);
+                android.R.layout.simple_list_item_single_choice, data);
         setListAdapter(adapter);
-        if (position >= 0)
-            setSelection(position);
+        if (position >= 0) {
+            getListView().setSelection(position);
+            getListView().setItemChecked(position, true);
+        }
     }
 
     @Override
@@ -125,8 +123,7 @@ public class TimeZoneActivity extends ListActivity {
 
                 UserInfo userInfo = new UserInfo(result);
                 if (userInfo.isOk()) {
-                    DataModel dm = serviceConnector.getServiceBinder().getDataModel();
-                    dm.setTimeZoneId(timeZone);
+                    serviceConnector.getServiceBinder().setTimeZoneId(timeZone);
                     Toast.makeText(TimeZoneActivity.this, getString(R.string.timeZoneSuccessUpdate), Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(TimeZoneActivity.this, userInfo.getMessage(), Toast.LENGTH_LONG).show();
